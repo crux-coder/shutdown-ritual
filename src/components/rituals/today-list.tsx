@@ -65,9 +65,23 @@ export async function TodayList() {
   );
   // The evening without rituals of its own: straight to closing the day.
   const finishForToday = shutdown({ label: "Finish for today", delayMs: 200 });
+  // The shorter way out on a tired evening: straight to the note and the
+  // close, leaving whatever rituals are open for today.
+  const essentials = shutdown({
+    quiet: true,
+    label: "Just the essentials tonight",
+    delayMs: 400,
+  });
   // Before the evening: open its rituals early, or close the day.
   const evening =
-    endRituals.length > 0 ? <DayPrompt moment="end" /> : finishForToday;
+    endRituals.length > 0 ? (
+      <div className="flex flex-col">
+        <DayPrompt moment="end" />
+        {essentials}
+      </div>
+    ) : (
+      finishForToday
+    );
 
   if (user.dayShutDownOn === date) {
     return (
@@ -114,11 +128,7 @@ export async function TodayList() {
           {endRituals.every((r) => r.completed)
             ? shutdown({ delayMs: 400 })
             : // Not everything got done, and that's fine: leave it for today.
-              shutdown({
-                quiet: true,
-                label: "Skip the rest for today and finish",
-                delayMs: 400,
-              })}
+              essentials}
         </div>
       ) : (
         finishForToday
