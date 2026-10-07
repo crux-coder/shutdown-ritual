@@ -1,4 +1,9 @@
 import { Suspense } from "react";
+import { NewRitualButton } from "@/components/rituals/ritual-dialog";
+import {
+  RitualList,
+  RitualListSkeleton,
+} from "@/components/rituals/ritual-list";
 import { getCurrentUser } from "@/lib/auth";
 import { signOut } from "./(auth)/actions";
 
@@ -21,14 +26,28 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center px-6 pb-24 text-center">
-        <Suspense fallback={<Greeting />}>
-          <UserGreeting />
-        </Suspense>
-        <p className="mt-4 max-w-md text-base-content/60">
-          Take a breath. Let&apos;s gently wrap up today and make space for
-          tomorrow.
-        </p>
+      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 pt-12 pb-24 sm:pt-20">
+        <div className="text-center">
+          <Suspense fallback={<Greeting />}>
+            <UserGreeting />
+          </Suspense>
+          <p className="mx-auto mt-4 max-w-md text-base-content/60">
+            Take a breath. Let&apos;s gently wrap up today and make space for
+            tomorrow.
+          </p>
+        </div>
+
+        <section className="mt-16">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <h2 className="font-serif text-2xl font-light tracking-tight">
+              Your rituals
+            </h2>
+            <NewRitualButton />
+          </div>
+          <Suspense fallback={<RitualListSkeleton />}>
+            <RitualList />
+          </Suspense>
+        </section>
       </main>
     </div>
   );
