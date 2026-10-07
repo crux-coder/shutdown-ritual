@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { publicOrigin } from "@/lib/public-origin";
 
 const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
 const PUBLIC_PREFIXES = ["/auth"];
@@ -59,10 +60,9 @@ function redirectTo(
   response: NextResponse,
   pathname: string,
 ) {
-  const url = request.nextUrl.clone();
-  url.pathname = pathname;
-  url.search = "";
-  const redirect = NextResponse.redirect(url);
+  const redirect = NextResponse.redirect(
+    new URL(pathname, publicOrigin(request)),
+  );
   response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
   return redirect;
 }
