@@ -2,14 +2,17 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AuthForm } from "@/components/auth-form";
 import { login } from "../actions";
+import { AuthMain } from "../frame";
 
 export const metadata: Metadata = { title: "Sign in" };
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
-    <Suspense fallback={<AuthForm mode="login" action={login} />}>
-      <LoginForm searchParams={searchParams} />
-    </Suspense>
+    <AuthMain>
+      <Suspense fallback={<AuthForm mode="login" action={login} />}>
+        <LoginForm searchParams={searchParams} />
+      </Suspense>
+    </AuthMain>
   );
 }
 

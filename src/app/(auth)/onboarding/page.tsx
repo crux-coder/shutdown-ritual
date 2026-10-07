@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getProfile } from "@/lib/auth";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
+import { suggestionsEnabled } from "@/lib/rituals/suggest";
 import { signOut } from "../actions";
+import { AuthBottom, AuthMain, AuthTop } from "../frame";
 import { goBack } from "./actions";
 import { DayHoursStep } from "./day-hours-step";
 import { NameStep } from "./name-step";
@@ -18,14 +20,16 @@ export default function OnboardingPage() {
         <CurrentStep />
       </Suspense>
 
-      <form action={signOut} className="mt-8 text-center">
-        <button
-          type="submit"
-          className="link link-hover text-sm text-base-content/60"
-        >
-          Sign out
-        </button>
-      </form>
+      <AuthBottom>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="link link-hover text-sm text-base-content/50"
+          >
+            Sign out
+          </button>
+        </form>
+      </AuthBottom>
     </>
   );
 }
@@ -72,10 +76,13 @@ async function CurrentStep() {
         <Step
           step="first_ritual"
           title={`Your first ritual, ${profile.firstName}`}
-          subtitle="Start small. One routine you'd like to come back to — you can add more later."
+          subtitle="Start with one. You can add more later."
           className="max-w-lg"
         >
-          <RitualStep backAction={goBack.bind(null, "first_ritual")} />
+          <RitualStep
+            backAction={goBack.bind(null, "first_ritual")}
+            suggestionsEnabled={suggestionsEnabled()}
+          />
         </Step>
       );
   }
@@ -97,16 +104,22 @@ function Step({
   const index = ONBOARDING_STEPS.indexOf(step);
 
   return (
-    <div className={`w-full motion-safe:animate-rise ${className}`}>
-      <StepDots current={index} />
-      <header className="mb-10 text-center">
-        <h1 className="font-serif text-4xl font-light tracking-tight">
-          {title}
-        </h1>
-        <p className="mt-3 text-base-content/60">{subtitle}</p>
-      </header>
-      {children}
-    </div>
+    <>
+      <AuthTop>
+        <StepDots current={index} />
+      </AuthTop>
+      <AuthMain className={className}>
+        <div className="motion-safe:animate-rise">
+          <header className="mb-10 text-center">
+            <h1 className="font-serif text-4xl font-light tracking-tight">
+              {title}
+            </h1>
+            <p className="mt-3 text-base-content/60">{subtitle}</p>
+          </header>
+          {children}
+        </div>
+      </AuthMain>
+    </>
   );
 }
 
@@ -115,7 +128,7 @@ function StepDots({ current }: { current: number }) {
     <div
       role="img"
       aria-label={`Step ${current + 1} of ${ONBOARDING_STEPS.length}`}
-      className="mb-8 flex justify-center gap-2"
+      className="flex justify-center gap-2"
     >
       {ONBOARDING_STEPS.map((step, i) => (
         <span
@@ -135,11 +148,13 @@ function StepDots({ current }: { current: number }) {
 
 function StepSkeleton() {
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
-      <div className="skeleton mx-auto h-10 w-3/4" />
-      <div className="skeleton mx-auto mb-6 h-5 w-full" />
-      <div className="skeleton h-14 w-full" />
-      <div className="skeleton h-14 w-full" />
-    </div>
+    <AuthMain>
+      <div className="flex flex-col gap-4">
+        <div className="skeleton mx-auto h-10 w-3/4" />
+        <div className="skeleton mx-auto mb-6 h-5 w-full" />
+        <div className="skeleton h-14 w-full" />
+        <div className="skeleton h-14 w-full" />
+      </div>
+    </AuthMain>
   );
 }

@@ -11,6 +11,12 @@ import {
   validateRitual,
   type RitualFormValues,
 } from "@/lib/rituals/form";
+import {
+  MAX_ANSWER_LENGTH,
+  SUGGESTION_QUESTIONS,
+  type SuggestionAnswers,
+} from "@/lib/rituals/questions";
+import { suggestRituals, type RitualSuggestion } from "@/lib/rituals/suggest";
 import { createClient } from "@/lib/supabase/server";
 
 export type NameStepState =
@@ -114,6 +120,37 @@ export async function createFirstRitual(
   }
 
   redirect("/");
+}
+
+export type SuggestionsResult =
+  { suggestions: RitualSuggestion[] } | { error: string };
+
+// Rituals written for the user from their three answers.
+export async function suggestFirstRituals(
+  answers: SuggestionAnswers,
+): Promise<SuggestionsResult> {
+  await getProfile();
+
+  const cleaned = Object.fromEntries(
+    SUGGESTION_QUESTIONS.map((q) => [
+      q.id,
+      String(answers?.[q.id] ?? "")
+        .trim()
+        .slice(0, MAX_ANSWER_LENGTH),
+    ]),
+  ) as SuggestionAnswers;
+  if (Object.values(cleaned).some((a) => !a)) {
+    return { error: "Answer all three questions first." };
+  }
+
+  try {
+    return { suggestions: await suggestRituals(cleaned) };
+  } catch (error) {
+    console.error("Ritual suggestions failed:", error);
+    return {
+      error: "We couldn’t come up with suggestions just now.",
+    };
+  }
 }
 
 // Rituals can wait: the user lands on an empty today view that points them

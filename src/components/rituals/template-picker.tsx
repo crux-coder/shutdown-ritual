@@ -49,9 +49,12 @@ export function useRitualTemplate(
 export function TemplatePicker({
   picked,
   onPick,
+  offerBlank = true,
 }: {
   picked: RitualTemplate | null;
   onPick: (template: RitualTemplate | null) => void;
+  // Whether to offer a blank form below the list.
+  offerBlank?: boolean;
 }) {
   // Open on the picked template's audience, so it stays in view.
   const [audience, setAudience] = useState<TemplateAudience>(
@@ -112,34 +115,36 @@ export function TemplatePicker({
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={() => onPick(null)}
-        className="btn btn-ghost btn-sm self-center text-base-content/70"
-      >
-        Or start from scratch
-      </button>
+      {offerBlank && (
+        <button
+          type="button"
+          onClick={() => onPick(null)}
+          className="btn btn-ghost btn-sm self-center text-base-content/70"
+        >
+          Or start from scratch
+        </button>
+      )}
     </div>
   );
 }
 
-// Above the form: where it started from, and a way back to the templates.
+// Above the form: where it started from, and a way back to choose again.
 export function TemplateOrigin({
-  picked,
-  onBrowse,
+  title,
+  backLabel = "Templates",
+  onBack,
 }: {
-  picked: RitualTemplate | null;
-  onBrowse: () => void;
+  // The template or suggestion it started from; null for a blank form.
+  title: string | null;
+  backLabel?: string;
+  onBack: () => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-box bg-base-200/50 py-1.5 pr-1.5 pl-4 text-sm">
       <span className="min-w-0 truncate text-base-content/60">
-        {picked ? (
+        {title ? (
           <>
-            From{" "}
-            <span className="font-medium text-base-content">
-              {picked.values.title}
-            </span>
+            From <span className="font-medium text-base-content">{title}</span>
           </>
         ) : (
           "Starting from scratch"
@@ -147,7 +152,7 @@ export function TemplateOrigin({
       </span>
       <button
         type="button"
-        onClick={onBrowse}
+        onClick={onBack}
         className="btn btn-ghost btn-xs shrink-0"
       >
         <HugeiconsIcon
@@ -156,7 +161,7 @@ export function TemplateOrigin({
           strokeWidth={2}
           className="size-3.5"
         />
-        Templates
+        {backLabel}
       </button>
     </div>
   );

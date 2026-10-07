@@ -42,7 +42,7 @@ export function AuthForm({ mode, action, initialError }: Props) {
   const t = copy[mode];
 
   return (
-    <div className="w-full max-w-sm">
+    <div className="w-full">
       <header className="mb-10 text-center">
         <h1 className="font-serif text-4xl font-light tracking-tight">
           {t.title}

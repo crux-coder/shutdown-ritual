@@ -11,7 +11,15 @@ import { TextAreaField, TextField } from "@/components/text-field";
 import { StepsField } from "./steps-field";
 
 // The inputs of a ritual form, read by readRitualValues on the server.
-export function RitualFields({ values }: { values: RitualFormValues }) {
+// `minimal` leaves out the description and integrations, keeping whatever
+// values they already have.
+export function RitualFields({
+  values,
+  minimal = false,
+}: {
+  values: RitualFormValues;
+  minimal?: boolean;
+}) {
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -24,13 +32,17 @@ export function RitualFields({ values }: { values: RitualFormValues }) {
           required
           autoFocus
         />
-        <TextAreaField
-          label="Description (optional)"
-          name="description"
-          defaultValue={values.description}
-          maxLength={MAX_DESCRIPTION_LENGTH}
-          rows={2}
-        />
+        {minimal ? (
+          <input type="hidden" name="description" value={values.description} />
+        ) : (
+          <TextAreaField
+            label="Description (optional)"
+            name="description"
+            defaultValue={values.description}
+            maxLength={MAX_DESCRIPTION_LENGTH}
+            rows={2}
+          />
+        )}
       </div>
 
       <StepsField initial={values.steps} />
@@ -77,46 +89,52 @@ export function RitualFields({ values }: { values: RitualFormValues }) {
         </div>
       </fieldset>
 
-      <fieldset className="fieldset">
-        <legend className="fieldset-legend">
-          Integrations
-          <span className="badge badge-ghost badge-sm font-normal">
-            Coming soon
-          </span>
-        </legend>
-        <div className="grid grid-cols-2 gap-2">
-          {RITUAL_INTEGRATIONS.map((integration) => (
-            <label
-              key={integration.id}
-              className="flex cursor-pointer items-start gap-2.5 rounded-box border border-base-300 p-3 transition-colors has-checked:border-primary has-checked:bg-primary/10"
-            >
-              <input
-                type="checkbox"
-                name="integrations"
-                value={integration.id}
-                defaultChecked={values.integrations.includes(integration.id)}
-                className="checkbox checkbox-sm checkbox-primary mt-0.5"
-              />
-              <span className="flex min-w-0 flex-col gap-0.5">
-                <span className="flex items-center gap-1.5 text-sm font-medium">
-                  <IntegrationIcon
-                    integration={integration.id}
-                    className="size-4 shrink-0 text-base-content/80"
-                  />
-                  {integration.label}
+      {minimal ? (
+        values.integrations.map((id) => (
+          <input key={id} type="hidden" name="integrations" value={id} />
+        ))
+      ) : (
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">
+            Integrations
+            <span className="badge badge-ghost badge-sm font-normal">
+              Coming soon
+            </span>
+          </legend>
+          <div className="grid grid-cols-2 gap-2">
+            {RITUAL_INTEGRATIONS.map((integration) => (
+              <label
+                key={integration.id}
+                className="flex cursor-pointer items-start gap-2.5 rounded-box border border-base-300 p-3 transition-colors has-checked:border-primary has-checked:bg-primary/10"
+              >
+                <input
+                  type="checkbox"
+                  name="integrations"
+                  value={integration.id}
+                  defaultChecked={values.integrations.includes(integration.id)}
+                  className="checkbox checkbox-sm checkbox-primary mt-0.5"
+                />
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="flex items-center gap-1.5 text-sm font-medium">
+                    <IntegrationIcon
+                      integration={integration.id}
+                      className="size-4 shrink-0 text-base-content/80"
+                    />
+                    {integration.label}
+                  </span>
+                  <span className="text-xs text-base-content/60">
+                    {integration.hint}
+                  </span>
                 </span>
-                <span className="text-xs text-base-content/60">
-                  {integration.hint}
-                </span>
-              </span>
-            </label>
-          ))}
-        </div>
-        <p className="label">
-          Pick what this ritual should look at. Connecting accounts is on the
-          way.
-        </p>
-      </fieldset>
+              </label>
+            ))}
+          </div>
+          <p className="label">
+            Pick what this ritual should look at. Connecting accounts is on the
+            way.
+          </p>
+        </fieldset>
+      )}
     </>
   );
 }

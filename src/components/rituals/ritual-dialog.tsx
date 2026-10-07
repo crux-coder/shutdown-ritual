@@ -182,7 +182,10 @@ function RitualForm({
       {ritual ? (
         <input type="hidden" name="id" value={ritual.id} />
       ) : (
-        <TemplateOrigin picked={template.picked} onBrowse={template.browse} />
+        <TemplateOrigin
+          title={template.picked?.values.title ?? null}
+          onBack={template.browse}
+        />
       )}
 
       <RitualFields key={template.fieldsKey} values={template.values} />

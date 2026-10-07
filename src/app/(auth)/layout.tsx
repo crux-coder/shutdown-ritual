@@ -1,14 +1,17 @@
 import { Logo } from "@/components/logo";
 
+// A quiet frame: the logo at the top, the page's main part centred in the
+// space below, and room above and below it for AuthTop and AuthBottom (see
+// ./frame.tsx).
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-6 py-16">
-      <div className="mb-12 flex flex-col items-center gap-4">
-        <Logo className="size-12" />
-        <p className="font-serif text-sm tracking-[0.3em] text-base-content/40 uppercase">
+    <main className="grid min-h-dvh flex-1 grid-rows-[auto_auto_1fr_auto] justify-items-center px-6">
+      <header className="row-start-1 flex items-center gap-3 pt-8">
+        <Logo className="size-7" />
+        <p className="font-serif text-xs tracking-[0.3em] text-base-content/40 uppercase">
           Shutdown Ritual
         </p>
-      </div>
+      </header>
       {children}
     </main>
   );
