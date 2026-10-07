@@ -69,7 +69,11 @@ export async function TodayList() {
   // close, leaving whatever rituals are open for today.
   const essentials = shutdown({
     quiet: true,
-    label: "Just the essentials tonight",
+    label: (
+      <>
+        <span className="text-primary">Too tired?</span> Skip to shutdown
+      </>
+    ),
     delayMs: 400,
   });
   // Before the evening: open its rituals early, or close the day.

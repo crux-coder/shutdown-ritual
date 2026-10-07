@@ -2,7 +2,13 @@
 
 import { ShutDownIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import {
   MAX_HANDOFF_NOTE_LENGTH,
   normalizePhrase,
@@ -39,7 +45,7 @@ export function ShutdownFlow({
   note: string;
   // A small text link instead of the big button, for finishing early.
   quiet?: boolean;
-  label?: string;
+  label?: ReactNode;
   delayMs?: number;
 }) {
   const [open, setOpen] = useState(false);

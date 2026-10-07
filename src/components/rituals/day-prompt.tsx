@@ -50,7 +50,7 @@ export function PromptButton({
   delayMs = 0,
 }: {
   icon: IconSvgElement;
-  label: string;
+  label: ReactNode;
   onClick: () => void;
   pending?: boolean;
   delayMs?: number;
