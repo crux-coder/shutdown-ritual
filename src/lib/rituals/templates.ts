@@ -68,7 +68,7 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
       moment: "end_of_day",
       integrations: ["gmail", "todoist", "google_calendar"],
       steps: [
-        "Check email and messages for anything urgent",
+        "Check email and messages for anything truly urgent",
         "Capture every open task somewhere you trust",
         "Look over tomorrow’s calendar and rough out a plan",
       ],
@@ -91,7 +91,7 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
     integrations: ["todoist", "google_calendar"],
     steps: [
       "Look back at what got done and what slipped",
-      "Empty your inboxes and lists",
+      "Skim your inboxes; park anything that can wait",
       "Choose the few things that matter next week",
     ],
   }),
@@ -119,7 +119,7 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
       steps: [
         "Push your work in progress to a branch",
         "Leave a note on where you stopped and what’s next",
-        "Answer review requests",
+        "Capture pending reviews for tomorrow",
         "Move your tickets to where they really are",
       ],
     },
@@ -178,7 +178,7 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
     moment: "end_of_day",
     integrations: ["gmail", "google_calendar"],
     steps: [
-      "Reply to anything blocking your team",
+      "Check for urgent blockers; park the rest",
       "Make sure today’s decisions are written down and shared",
       "Note anything to raise in upcoming one-on-ones",
       "Look over tomorrow’s meetings and what each one needs",
@@ -223,7 +223,7 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
       integrations: ["gmail", "todoist"],
       steps: [
         "Log today’s hours against each client",
-        "Send the updates you promised",
+        "Send only the updates you promised for today",
         "Note anything to invoice",
         "Plan tomorrow around the nearest deadlines",
       ],

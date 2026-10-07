@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { DEFAULT_DAY_ENDS_AT, DEFAULT_DAY_STARTS_AT } from "@/lib/day-hours";
 import type { OnboardingStep } from "@/lib/onboarding";
-import { DEFAULT_SHUTDOWN_PHRASE } from "@/lib/profile";
+import { DEFAULT_SHUTDOWN_PHRASE, type ShutdownMode } from "@/lib/profile";
 import {
   DEFAULT_SHUTDOWN_SOUND,
   DEFAULT_START_SOUND,
@@ -29,6 +29,11 @@ export type Profile = {
   startSound: SoundId;
   shutdownSound: SoundId;
   shutdownPhrase: string;
+  // Whether shutting down takes typing the phrase or a single button.
+  shutdownMode: ShutdownMode;
+  // The note left for the next day, and the local date it was written on.
+  handoffNote: string | null;
+  handoffNoteOn: string | null;
   onboardingStep: OnboardingStep;
 };
 
@@ -58,7 +63,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "first_name, last_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, start_sound, shutdown_sound, shutdown_phrase, onboarding_step",
+      "first_name, last_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, start_sound, shutdown_sound, shutdown_phrase, shutdown_mode, handoff_note, handoff_note_on, onboarding_step",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -88,6 +93,9 @@ export const getProfile = cache(async (): Promise<Profile> => {
       ? shutdownSound
       : DEFAULT_SHUTDOWN_SOUND,
     shutdownPhrase: data?.shutdown_phrase ?? DEFAULT_SHUTDOWN_PHRASE,
+    shutdownMode: data?.shutdown_mode === "button" ? "button" : "phrase",
+    handoffNote: data?.handoff_note || null,
+    handoffNoteOn: data?.handoff_note_on ?? null,
     onboardingStep: data?.onboarding_step ?? "name",
   };
 });

@@ -1,28 +1,30 @@
 import Link from "next/link";
+import type { ComponentProps } from "react";
 import { TimeZoneSync } from "@/components/time-zone-sync";
 import { getCurrentUser } from "@/lib/auth";
 import { today } from "@/lib/dates";
 import { minutesUntilNextPhase, todayPhase } from "@/lib/day-hours";
-import { WEEKDAYS, type Weekday } from "@/lib/rituals/options";
-import {
-  getRituals,
-  getTodaysRituals,
-  type TodaysRitual,
-} from "@/lib/rituals/queries";
+import { getTodaysRituals, type TodaysRitual } from "@/lib/rituals/queries";
 import type { SoundId } from "@/lib/sounds";
 import { DayPrompt, RefreshIn, ShutDownView } from "./day-prompt";
+import { HandoffNote } from "./handoff-note";
 import { ShutdownFlow } from "./shutdown-flow";
 import { TodayRitual } from "./today-ritual";
 
 // Each item rises in a beat after the one before it.
 const STAGGER_MS = 90;
 
+type ShutdownProps = Pick<
+  ComponentProps<typeof ShutdownFlow>,
+  "quiet" | "label" | "delayMs"
+>;
+
 export async function TodayList() {
   const [user, rituals] = await Promise.all([
     getCurrentUser(),
     getTodaysRituals(),
   ]);
-  const { date, weekday, minutes } = today(user.timeZone);
+  const { date, minutes } = today(user.timeZone);
 
   const startRituals = rituals.filter((r) => r.moment === "start_of_day");
   const endRituals = rituals.filter((r) => r.moment === "end_of_day");
@@ -41,58 +43,85 @@ export async function TodayList() {
     user.dayEndsAt,
   );
 
+  // A note written on an earlier day is waiting to be read; one written
+  // today is still being drafted, and the shutdown screen picks it up.
+  const noteFromBefore =
+    user.handoffNote && user.handoffNoteOn && user.handoffNoteOn < date
+      ? user.handoffNote
+      : null;
+  const noteFromToday =
+    user.handoffNoteOn === date ? (user.handoffNote ?? "") : "";
+
+  // Closing the day is always possible, whatever's still open; unfinished
+  // rituals just stay unticked.
+  const shutdown = (props: ShutdownProps) => (
+    <ShutdownFlow
+      phrase={user.shutdownPhrase}
+      sound={user.shutdownSound}
+      mode={user.shutdownMode}
+      note={noteFromToday}
+      {...props}
+    />
+  );
+  // The evening without rituals of its own: straight to closing the day.
+  const finishForToday = shutdown({ label: "Finish for today", delayMs: 200 });
+  // Before the evening: open its rituals early, or close the day.
+  const evening =
+    endRituals.length > 0 ? <DayPrompt moment="end" /> : finishForToday;
+
+  if (user.dayShutDownOn === date) {
+    return (
+      <>
+        <TimeZoneSync stored={user.timeZone} />
+        <ShutDownView />
+      </>
+    );
+  }
+
   return (
     <>
       <TimeZoneSync stored={user.timeZone} />
       {refreshIn !== null && <RefreshIn minutes={refreshIn} />}
+      {noteFromBefore && <HandoffNote note={noteFromBefore} />}
 
-      {user.dayShutDownOn === date ? (
-        <ShutDownView
-          backAt={await nextRitualsAt(
-            weekday,
-            user.dayStartsAt,
-            user.dayEndsAt,
-          )}
-        />
-      ) : rituals.length === 0 ? (
-        <div className="px-6 py-10 text-center motion-safe:animate-rise">
-          <p className="font-serif text-lg">Nothing on for today</p>
-          <p className="mt-1 text-sm text-base-content/60">
-            Enjoy the quiet, or{" "}
-            <Link href="/rituals" className="link link-hover">
-              plan a ritual
-            </Link>
-            .
-          </p>
+      {rituals.length === 0 ? (
+        <div className="flex flex-col gap-2">
+          <div className="px-6 pt-10 text-center motion-safe:animate-rise">
+            <p className="font-serif text-lg">Nothing on for today</p>
+            <p className="mt-1 text-sm text-base-content/60">
+              Enjoy the quiet, or{" "}
+              <Link href="/rituals" className="link link-hover">
+                plan a ritual
+              </Link>
+              .
+            </p>
+          </div>
+          {finishForToday}
         </div>
       ) : phase === "start_prompt" ? (
         <DayPrompt moment="start" />
       ) : phase === "start" ? (
         <div className="flex flex-col gap-6">
-          <RitualList
-            rituals={startRituals}
-            finishSound={user.startSound}
-          />
-          {/* Morning done: the end of the day can be opened early from here. */}
-          {startRituals.every((r) => r.completed) && (
-            <EndPrompt hasRituals={endRituals.length > 0} />
-          )}
+          <RitualList rituals={startRituals} finishSound={user.startSound} />
+          {/* Morning done: the evening can be opened early from here. */}
+          {startRituals.every((r) => r.completed) && evening}
         </div>
       ) : phase === "end_prompt" ? (
-        <EndPrompt hasRituals={endRituals.length > 0} />
+        evening
       ) : endRituals.length > 0 ? (
         <div className="flex flex-col gap-6">
           <RitualList rituals={endRituals} />
-          {endRituals.every((r) => r.completed) && (
-            <ShutdownFlow
-              phrase={user.shutdownPhrase}
-              sound={user.shutdownSound}
-              delayMs={400}
-            />
-          )}
+          {endRituals.every((r) => r.completed)
+            ? shutdown({ delayMs: 400 })
+            : // Not everything got done, and that's fine: leave it for today.
+              shutdown({
+                quiet: true,
+                label: "Skip the rest for today and finish",
+                delayMs: 400,
+              })}
         </div>
       ) : (
-        <Quiet>Nothing left for today</Quiet>
+        finishForToday
       )}
     </>
   );
@@ -122,46 +151,6 @@ function RitualList({
       ))}
     </ul>
   );
-}
-
-function EndPrompt({ hasRituals }: { hasRituals: boolean }) {
-  return hasRituals ? (
-    <DayPrompt moment="end" />
-  ) : (
-    <Quiet>Nothing more planned today</Quiet>
-  );
-}
-
-function Quiet({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="px-6 py-10 text-center font-serif text-xl text-base-content/70 motion-safe:animate-rise">
-      {children}
-    </p>
-  );
-}
-
-// When rituals next open after today, e.g. "tomorrow at 09:00" or "Monday
-// at 17:30": the start of the day if it has start-of-day rituals, else its end.
-async function nextRitualsAt(
-  weekday: Weekday,
-  dayStartsAt: string,
-  dayEndsAt: string,
-): Promise<string | null> {
-  const rituals = await getRituals();
-
-  for (let ahead = 1; ahead <= 7; ahead++) {
-    const day = (((weekday - 1 + ahead) % 7) + 1) as Weekday;
-    const due = rituals.filter((r) => r.days.includes(day));
-    if (due.length === 0) continue;
-
-    const name = WEEKDAYS.find((d) => d.id === day)!.long;
-    const when = ahead === 1 ? "tomorrow" : ahead === 7 ? `next ${name}` : name;
-    const time = due.some((r) => r.moment === "start_of_day")
-      ? dayStartsAt
-      : dayEndsAt;
-    return `${when} at ${time}`;
-  }
-  return null;
 }
 
 export function TodayListSkeleton() {

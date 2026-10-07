@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ArrowTurnBackwardIcon,
   Moon02Icon,
   SunriseIcon,
   SunsetIcon,
@@ -149,12 +148,12 @@ export function NightButton({
   );
 }
 
-// The day is done: the app dims to a night screen over everything, with one
-// way back in.
-export function ShutDownView({ backAt }: { backAt: string | null }) {
+// The day is done: the app dims to a night screen over everything. Reopening
+// is possible but deliberately quiet, so the ending holds.
+export function ShutDownView() {
   const [, startTransition] = useTransition();
   const [leaving, setLeaving] = useState(false);
-  // Coming from the shutdown phrase, the night is already up.
+  // Coming from the shutdown screen, the night is already up.
   const [fadeIn] = useState(() => !nightShowing);
 
   useEffect(() => {
@@ -184,18 +183,21 @@ export function ShutDownView({ backAt }: { backAt: string | null }) {
         style={{ animationDelay: "800ms" }}
       >
         <p className="font-serif text-3xl font-light tracking-tight sm:text-4xl">
-          Done for the day
+          You’re done for today.
         </p>
-        {backAt && <p className="mt-3 opacity-50">Back at it {backAt}</p>}
+        <p className="mt-3 opacity-50">
+          Everything you left here will be waiting tomorrow.
+        </p>
       </div>
-      <NightButton
-        icon={ArrowTurnBackwardIcon}
-        delayMs={1400}
+      <button
+        type="button"
         disabled={leaving}
         onClick={reopen}
+        className="absolute bottom-10 text-sm text-[#ece4d8]/30 underline-offset-4 transition-colors hover:text-[#ece4d8]/60 hover:underline motion-safe:animate-rise"
+        style={{ animationDelay: "2000ms" }}
       >
-        One more thing
-      </NightButton>
+        Reopen day
+      </button>
     </NightScreen>
   );
 }

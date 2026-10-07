@@ -32,6 +32,18 @@ export function validateDayHours(
   return null;
 }
 
+// How the day is closed: by typing the shutdown phrase, or with one button.
+// Matches the profiles.shutdown_mode check.
+export const SHUTDOWN_MODES = ["phrase", "button"] as const;
+export type ShutdownMode = (typeof SHUTDOWN_MODES)[number];
+
+export function isShutdownMode(value: string): value is ShutdownMode {
+  return (SHUTDOWN_MODES as readonly string[]).includes(value);
+}
+
+// The note left for tomorrow; matches the profiles.handoff_note check.
+export const MAX_HANDOFF_NOTE_LENGTH = 500;
+
 // Matches the profiles.shutdown_phrase column default.
 export const DEFAULT_SHUTDOWN_PHRASE = "Schedule shutdown, complete.";
 export const MAX_SHUTDOWN_PHRASE_LENGTH = 80;

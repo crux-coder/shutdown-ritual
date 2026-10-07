@@ -30,6 +30,7 @@ From the person's three answers, suggest exactly ${SUGGESTION_COUNT} different r
 - Each has 3 to 5 steps: short, concrete actions in the imperative ("Capture every open task in Todoist"), under 80 characters, no numbering, no trailing full stops.
 - Make them specific to their work, to what makes it hard to switch off, and to how they want to feel when they log off. Keep steps about what they do, not about particular apps.
 - Don't add a step for saying a shutdown phrase: the app already ends every day with one.
+- End-of-day steps close work down rather than start more of it: capture, park and note things for tomorrow instead of answering, replying or finishing them ("Capture pending reviews for tomorrow", not "Answer review requests"; "Check for urgent blockers; park the rest", not "Reply to everything").
 - Titles are two to four words, warm and plain ("Close the studio", not "Ultimate Productivity Shutdown").
 - days are ISO weekdays (1 = Monday … 7 = Sunday). Default to weekdays; use a single day for weekly rituals.
 - Use typographic apostrophes (’).

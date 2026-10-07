@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { getCurrentUser } from "@/lib/auth";
 import { DayHoursForm } from "../day-hours-form";
 import { PhraseForm } from "../phrase-form";
+import { ShutdownModeForm } from "../shutdown-mode-form";
 import { SettingsSection, SettingsSkeleton } from "../settings-section";
 import { SoundForm } from "../sound-form";
 
@@ -33,10 +34,13 @@ async function DaySettings() {
         />
       </SettingsSection>
       <SettingsSection
-        title="Shutdown phrase"
-        description="The words you type to close the day."
+        title="Shutting down"
+        description="How you close the day once you’re ready."
       >
-        <PhraseForm phrase={user.shutdownPhrase} />
+        <div className="flex flex-col gap-8">
+          <ShutdownModeForm mode={user.shutdownMode} />
+          <PhraseForm phrase={user.shutdownPhrase} />
+        </div>
       </SettingsSection>
       <SettingsSection
         title="Sounds"

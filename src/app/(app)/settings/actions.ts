@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import {
+  isShutdownMode,
   validateDayHours,
   validateName,
   validateShutdownPhrase,
@@ -75,6 +76,18 @@ export async function updateShutdownPhrase(
   if (error) return { status: "error", error };
 
   return updateProfile({ shutdown_phrase: phrase });
+}
+
+export async function updateShutdownMode(
+  _prev: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  const mode = String(formData.get("shutdownMode") ?? "");
+  if (!isShutdownMode(mode)) {
+    return { status: "error", error: "Please pick a way to close the day." };
+  }
+
+  return updateProfile({ shutdown_mode: mode });
 }
 
 // Checks the current password before setting the new one, so a device left

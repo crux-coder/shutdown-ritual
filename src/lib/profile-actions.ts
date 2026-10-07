@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { getCurrentUser, getProfile } from "@/lib/auth";
 import { isValidTimeZone, today } from "@/lib/dates";
+import { MAX_HANDOFF_NOTE_LENGTH } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 
 // Keeps "today" right when the user travels or signed up before we stored
@@ -37,7 +38,7 @@ export async function shutDownDay(): Promise<void> {
   await markToday("day_shut_down_on");
 }
 
-// "One more thing": leaves the shut-down view for today's rituals, still
+// "Reopen day": leaves the shut-down view for today's rituals, still
 // checked off, so the user can uncheck just the ones they want to revisit.
 export async function reopenDay(): Promise<void> {
   const user = await getCurrentUser();
@@ -50,6 +51,45 @@ export async function reopenDay(): Promise<void> {
 
   if (error) {
     throw new Error(`Failed to reopen your day: ${error.message}`);
+  }
+
+  refresh();
+}
+
+// Saves the note for tomorrow as it's typed on the shutdown screen, dated
+// today so it shows from the next day on. An empty note clears it. Doesn't
+// refresh the page, which would interrupt the typing.
+export async function saveHandoffNote(
+  note: string,
+): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  const { date } = today(user.timeZone);
+  const text = note.trim().slice(0, MAX_HANDOFF_NOTE_LENGTH);
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      handoff_note: text || null,
+      handoff_note_on: text ? date : null,
+    })
+    .eq("id", user.id);
+
+  return error ? { error: error.message } : {};
+}
+
+// Puts away the note once it's been read on the next day.
+export async function dismissHandoffNote(): Promise<void> {
+  const user = await getCurrentUser();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ handoff_note: null, handoff_note_on: null })
+    .eq("id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to put the note away: ${error.message}`);
   }
 
   refresh();
