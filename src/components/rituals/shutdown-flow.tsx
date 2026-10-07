@@ -256,7 +256,7 @@ function ShutdownScreen({
             onComplete={finish}
             disabled={pending || !ready}
             className="btn btn-lg h-16 gap-3 rounded-full border border-[#ece4d8]/35 bg-[#ece4d8]/10 px-10 font-normal text-[#ece4d8] shadow-none hover:border-[#ece4d8]/60 hover:bg-[#ece4d8]/15 disabled:border-[#ece4d8]/10 disabled:bg-transparent disabled:text-[#ece4d8]/30"
-            fillClassName="bg-[#ece4d8]/30"
+            fillClassName="bg-[#d08f72]/85"
           >
             <HugeiconsIcon
               aria-hidden
