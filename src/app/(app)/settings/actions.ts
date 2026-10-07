@@ -77,6 +77,54 @@ export async function updateShutdownPhrase(
   return updateProfile({ shutdown_phrase: phrase });
 }
 
+// Checks the current password before setting the new one, so a device left
+// signed in isn't enough to change it.
+export async function changePassword(
+  _prev: SettingsState,
+  formData: FormData,
+): Promise<SettingsState> {
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const newPassword = String(formData.get("newPassword") ?? "");
+
+  if (!currentPassword) {
+    return { status: "error", error: "Enter your current password." };
+  }
+  if (newPassword.length < 8) {
+    return {
+      status: "error",
+      error: "New passwords should be at least 8 characters.",
+    };
+  }
+  if (newPassword === currentPassword) {
+    return {
+      status: "error",
+      error: "Pick a password different from your current one.",
+    };
+  }
+
+  const user = await getCurrentUser();
+  const supabase = await createClient();
+
+  const { error: checkError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: currentPassword,
+  });
+  if (checkError) {
+    return {
+      status: "error",
+      error:
+        checkError.status === 429
+          ? "Too many tries. Wait a little and try again."
+          : "That isn’t your current password.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { status: "error", error: error.message };
+
+  return { status: "saved" };
+}
+
 async function updateProfile(
   values: Record<string, string>,
 ): Promise<SettingsState> {
