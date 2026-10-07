@@ -1,8 +1,12 @@
 import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 export async function createClient() {
+  // Auth checks token expiry with Date.now(), so this must run per request —
+  // never in a prerender, even one that has the cookies available.
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient(
