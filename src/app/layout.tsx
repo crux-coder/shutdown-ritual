@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Sky } from "@/components/sky";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,12 +14,33 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
+const description =
+  "A calm, intentional way to start your workday and close it properly.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Eventide",
     template: "%s · Eventide",
   },
-  description: "A calm, intentional way to close out your workday.",
+  description,
+  applicationName: "Eventide",
+  openGraph: {
+    type: "website",
+    siteName: "Eventide",
+    title: "Eventide",
+    description,
+  },
+  twitter: { card: "summary_large_image" },
+  // Opened from the home screen, it runs full screen like an app.
+  appleWebApp: { capable: true, title: "Eventide", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf6f0" },
+    { media: "(prefers-color-scheme: dark)", color: "#1f1a17" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

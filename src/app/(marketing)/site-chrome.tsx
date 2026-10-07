@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 
 // The header and footer shared by the public pages: the landing page and
-// the privacy page.
+// the privacy and terms pages.
 
 export function SiteHeader() {
   return (
@@ -57,6 +57,12 @@ export function SiteFooter() {
               className="link link-hover text-base-content/60"
             >
               Privacy
+            </Link>
+            <Link
+              href="/terms"
+              className="link link-hover text-base-content/60"
+            >
+              Terms
             </Link>
           </div>
         </nav>

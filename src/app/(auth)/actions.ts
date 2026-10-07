@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { landingPath } from "@/lib/auth";
+import { SITE_URL } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState =
@@ -73,8 +74,6 @@ export async function signup(
     email,
   };
 }
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // Sends a reset link. Says the same thing whether or not the account exists,
 // so the form can't be used to find out who has one.

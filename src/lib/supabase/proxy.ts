@@ -6,8 +6,15 @@ const AUTH_ROUTES = ["/sign-in", "/sign-up", "/forgot-password"];
 // The landing page: open to everyone, though signed-in users go on to the app.
 const LANDING = "/";
 const PUBLIC_PREFIXES = ["/auth"];
-// Open to everyone, signed in or not.
-const PUBLIC_PAGES = ["/privacy"];
+// Open to everyone, signed in or not: the legal pages, and the files that
+// browsers, crawlers and link previews fetch without an account.
+const PUBLIC_PAGES = [
+  "/privacy",
+  "/terms",
+  "/manifest.webmanifest",
+  "/robots.txt",
+  "/sitemap.xml",
+];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

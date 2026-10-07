@@ -95,6 +95,19 @@ export function AuthForm({ mode, action, initialError }: Props) {
             {pending && <span className="loading loading-spinner loading-sm" />}
             {pending ? t.pending : t.submit}
           </button>
+          {mode === "signup" && (
+            <p className="text-center text-xs text-base-content/45">
+              By creating an account, you agree to the{" "}
+              <Link href="/terms" className="link link-hover">
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="link link-hover">
+                Privacy policy
+              </Link>
+              .
+            </p>
+          )}
         </form>
       )}
 
