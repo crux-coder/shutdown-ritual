@@ -6,6 +6,8 @@ const AUTH_ROUTES = ["/sign-in", "/sign-up", "/forgot-password"];
 // The landing page: open to everyone, though signed-in users go on to the app.
 const LANDING = "/";
 const PUBLIC_PREFIXES = ["/auth"];
+// Open to everyone, signed in or not.
+const PUBLIC_PAGES = ["/privacy"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -43,6 +45,7 @@ export async function updateSession(request: NextRequest) {
   const isPublic =
     isLanding ||
     isAuthRoute ||
+    PUBLIC_PAGES.includes(pathname) ||
     PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (!isSignedIn && !isPublic) {

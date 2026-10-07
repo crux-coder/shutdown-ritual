@@ -201,9 +201,13 @@ function ShutdownScreen({
             readOnly={pending}
             rows={3}
             maxLength={MAX_HANDOFF_NOTE_LENGTH}
+            aria-describedby="handoff-note-privacy"
             placeholder="Optional. It’ll be here when you start tomorrow."
             className="w-full resize-none rounded-field border border-[#ece4d8]/15 bg-[#ece4d8]/5 px-4 py-3 text-base leading-relaxed text-[#ece4d8] caret-[#ece4d8]/60 placeholder:text-[#ece4d8]/30 focus:border-[#ece4d8]/40 focus:outline-none"
           />
+          <span id="handoff-note-privacy" className="text-xs opacity-35">
+            Only you can see this note.
+          </span>
         </label>
 
         {mode === "phrase" && (

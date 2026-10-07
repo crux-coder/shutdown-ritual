@@ -11,10 +11,10 @@ import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Logo } from "@/components/logo";
 import { DEFAULT_SHUTDOWN_PHRASE } from "@/lib/profile";
 import { RITUAL_MOMENTS } from "@/lib/rituals/options";
 import { RITUAL_TEMPLATES, TEMPLATE_AUDIENCES } from "@/lib/rituals/templates";
+import { SiteFooter, SiteHeader } from "./site-chrome";
 
 export const metadata: Metadata = {
   title: { absolute: "Shutdown Ritual · End your workday on purpose" },
@@ -32,32 +32,12 @@ export default function LandingPage() {
         <HowItWorks />
         <WhyItWorks />
         <Features />
+        <PrivateByDefault />
         <Templates />
         <ClosingCall />
       </main>
       <SiteFooter />
     </div>
-  );
-}
-
-function SiteHeader() {
-  return (
-    <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 py-5 sm:px-10">
-      <Link href="/" className="flex items-center gap-3">
-        <Logo className="size-8" />
-        <span className="hidden font-serif text-sm tracking-[0.3em] text-base-content/50 uppercase sm:inline">
-          Shutdown Ritual
-        </span>
-      </Link>
-      <nav className="flex items-center gap-2">
-        <Link href="/sign-in" className="btn btn-ghost btn-sm font-normal">
-          Sign in
-        </Link>
-        <Link href="/sign-up" className="btn btn-primary btn-sm">
-          Get started
-        </Link>
-      </nav>
-    </header>
   );
 }
 
@@ -80,10 +60,13 @@ function Hero() {
           <Link href="/sign-up" className="btn btn-primary btn-lg">
             Start your first ritual
           </Link>
-          <Link href="/sign-in" className="btn btn-ghost btn-lg font-normal">
-            Sign in
-          </Link>
+          <a href="#how-it-works" className="btn btn-ghost btn-lg font-normal">
+            See how it works
+          </a>
         </div>
+        <p className="mt-4 text-sm text-base-content/50">
+          Free to use. No card, no trial.
+        </p>
       </div>
 
       <div
@@ -169,18 +152,23 @@ function RitualPreview() {
 }
 
 function Section({
+  id,
   eyebrow,
   title,
   intro,
   children,
 }: {
+  id?: string;
   eyebrow: string;
   title: string;
   intro?: string;
   children: ReactNode;
 }) {
   return (
-    <section className="mx-auto w-full max-w-6xl px-6 py-20 sm:px-10 sm:py-28">
+    <section
+      id={id}
+      className="mx-auto w-full max-w-6xl scroll-mt-8 px-6 py-20 sm:px-10 sm:py-28"
+    >
       <div className="max-w-2xl">
         <p className="text-xs font-medium tracking-[0.25em] text-primary uppercase">
           {eyebrow}
@@ -202,24 +190,28 @@ function Section({
 function HowItWorks() {
   const steps = [
     {
-      icon: SparklesIcon,
-      title: "Shape your ritual",
-      text: "Answer three quick questions and get rituals tailored to your work, or start from a template.",
-    },
-    {
       icon: CheckListIcon,
-      title: "Work through it",
-      text: "When your workday ends, your rituals open. Tick off each step, one at a time.",
+      title: "Start with a ready-made ritual",
+      text: "Tell us your name and work hours, and a short shutdown ritual is waiting. No blank page, nothing to design.",
     },
     {
       icon: ShutDownIcon,
-      title: "Say the phrase",
-      text: "Type your shutdown phrase. The screen goes dark, and work is done until tomorrow.",
+      title: "Close your day",
+      text: "When work ends, tick off the steps, leave a note for tomorrow, and hold to shut down. The screen goes dark, and you’re done.",
+    },
+    {
+      icon: SparklesIcon,
+      title: "Make it yours, later",
+      text: "Once you’ve felt it, answer three quick questions for rituals shaped around your work, or pick a template.",
     },
   ];
 
   return (
-    <Section eyebrow="How it works" title="Three small steps to a real ending">
+    <Section
+      id="how-it-works"
+      eyebrow="How it works"
+      title="Three small steps to a real ending"
+    >
       <ol className="grid gap-6 md:grid-cols-3">
         {steps.map((step, index) => (
           <li
@@ -256,7 +248,7 @@ function WhyItWorks() {
     },
     {
       title: "A clear ending",
-      text: "A phrase you say every day becomes a signal that work is over.",
+      text: "A phrase you say, or a button you hold, becomes a daily signal that work is over.",
     },
     {
       title: "An easier start",
@@ -271,14 +263,21 @@ function WhyItWorks() {
           <p className="text-xs font-medium tracking-[0.25em] text-accent uppercase">
             Why it works
           </p>
-          <blockquote className="mt-6 font-serif text-3xl leading-snug font-light text-balance sm:text-4xl">
-            “Unfinished work keeps tugging at your attention. A shutdown ritual
-            gives every open loop a place to go, so your mind can let it go
-            too.”
-          </blockquote>
+          {/* Our own words, not a quotation: no quote marks. */}
+          <p className="mt-6 font-serif text-3xl leading-snug font-light text-balance sm:text-4xl">
+            Unfinished work keeps tugging at your attention. A shutdown ritual
+            gives every open loop a place to go, so your mind can let it go too.
+          </p>
           <p className="mt-6 text-neutral-content/60">
-            The idea was popularised by Cal Newport in <em>Deep Work</em>. We
-            made it something you’ll actually do every day.
+            Inspired by{" "}
+            <a
+              href="https://calnewport.com/drastically-reduce-stress-with-a-work-shutdown-ritual/"
+              className="link link-hover text-neutral-content/80"
+            >
+              Cal Newport’s work shutdown ritual
+            </a>
+            , which he also writes about in <em>Deep Work</em>. We made it
+            something you’ll actually do every day.
           </p>
         </div>
         <ul className="flex flex-col justify-center gap-8">
@@ -350,6 +349,32 @@ function Features() {
   );
 }
 
+function PrivateByDefault() {
+  return (
+    <section className="mx-auto w-full max-w-6xl px-6 sm:px-10">
+      <div className="flex flex-col gap-6 rounded-box border border-base-300 bg-base-100/60 p-8 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between sm:p-10">
+        <div className="max-w-2xl">
+          <h2 className="font-serif text-2xl font-light tracking-tight sm:text-3xl">
+            Your notes stay yours
+          </h2>
+          <p className="mt-3 leading-relaxed text-base-content/65">
+            The notes you leave for tomorrow and your rituals are visible only
+            to you. They’re never sold, never used for ads, and never sent to
+            AI. The only thing that is: your answers to the three questions,
+            when you ask for tailored suggestions.
+          </p>
+        </div>
+        <Link
+          href="/privacy"
+          className="btn btn-ghost shrink-0 self-start font-normal sm:self-center"
+        >
+          How we handle your data
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 const FEATURED_TEMPLATES = [
   "newport-shutdown",
   "engineer-end-of-day",
@@ -415,7 +440,8 @@ function ClosingCall() {
           Tonight, try stopping on purpose.
         </h2>
         <p className="mx-auto mt-4 max-w-lg text-primary-content/80">
-          It takes a minute to set up, and a few minutes at the end of each day.
+          It’s free, takes a minute to set up, and a few minutes at the end of
+          each day.
         </p>
         <Link
           href="/sign-up"
@@ -426,50 +452,4 @@ function ClosingCall() {
       </div>
     </section>
   );
-}
-
-function SiteFooter() {
-  return (
-    <footer className="border-t border-base-300">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-12 sm:flex-row sm:items-start sm:justify-between sm:px-10">
-        <div className="max-w-xs">
-          <Link href="/" className="flex items-center gap-3">
-            <Logo className="size-7" />
-            <span className="font-serif text-sm tracking-[0.3em] text-base-content/50 uppercase">
-              Shutdown Ritual
-            </span>
-          </Link>
-          <p className="mt-4 text-sm text-base-content/55">
-            A calm, intentional way to start your workday and close it properly.
-          </p>
-        </div>
-        <nav className="flex gap-12 text-sm">
-          <div className="flex flex-col gap-2">
-            <p className="font-medium">Get started</p>
-            <Link
-              href="/sign-up"
-              className="link link-hover text-base-content/60"
-            >
-              Create an account
-            </Link>
-            <Link
-              href="/sign-in"
-              className="link link-hover text-base-content/60"
-            >
-              Sign in
-            </Link>
-          </div>
-        </nav>
-      </div>
-      <p className="mx-auto w-full max-w-6xl px-6 pb-10 text-xs text-base-content/40 sm:px-10">
-        © <CurrentYear /> Shutdown Ritual
-      </p>
-    </footer>
-  );
-}
-
-// Read when the page is built, so the static page can include it.
-async function CurrentYear() {
-  "use cache";
-  return new Date().getFullYear();
 }
