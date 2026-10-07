@@ -1,5 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
+import { landingPath } from "@/lib/auth";
 import { publicOrigin } from "@/lib/public-origin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,13 +15,13 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
 
-  const { error } = code
+  const { data, error } = code
     ? await supabase.auth.exchangeCodeForSession(code)
     : tokenHash && type
       ? await supabase.auth.verifyOtp({ type, token_hash: tokenHash })
-      : { error: new Error("Missing confirmation token") };
+      : { data: null, error: new Error("Missing confirmation token") };
 
-  if (error) {
+  if (error || !data?.user) {
     return NextResponse.redirect(
       `${origin}/login?error=${type === "recovery" ? "reset" : "confirm"}`,
     );
@@ -28,6 +29,6 @@ export async function GET(request: NextRequest) {
 
   // A password reset link signs the user in to choose a new password.
   return NextResponse.redirect(
-    `${origin}${type === "recovery" ? "/reset-password" : "/"}`,
+    `${origin}${type === "recovery" ? "/reset-password" : await landingPath(data.user.id)}`,
   );
 }

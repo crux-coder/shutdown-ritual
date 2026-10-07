@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { landingPath } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState =
@@ -24,7 +25,7 @@ export async function login(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -33,7 +34,7 @@ export async function login(
     return { error: error.message, email };
   }
 
-  redirect("/");
+  redirect(await landingPath(data.user.id));
 }
 
 export async function signup(

@@ -102,3 +102,19 @@ export const getCurrentUser = cache(async (): Promise<User> => {
 
   return { ...profile, onboardingStep: "complete" };
 });
+
+// Where a user who has just signed in should land: the today view once
+// onboarding is done, else onboarding. Going straight there avoids a flash of
+// the home page's loading state before getCurrentUser redirects.
+export async function landingPath(
+  userId: string,
+): Promise<"/" | "/onboarding"> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("profiles")
+    .select("onboarding_step")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return data?.onboarding_step === "complete" ? "/" : "/onboarding";
+}
