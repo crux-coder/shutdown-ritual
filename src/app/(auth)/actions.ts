@@ -54,7 +54,7 @@ export async function signup(
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}/auth/confirm`,
+      emailRedirectTo: `${SITE_URL}/auth/confirm`,
     },
   });
 
@@ -71,6 +71,57 @@ export async function signup(
     message: "Check your inbox — we sent you a link to confirm your email.",
     email,
   };
+}
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
+// Sends a reset link. Says the same thing whether or not the account exists,
+// so the form can't be used to find out who has one.
+export async function requestPasswordReset(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim();
+  if (!email) {
+    return { error: "Please enter your email.", email };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${SITE_URL}/auth/confirm`,
+  });
+
+  // Too many requests is worth saying; anything else would give away
+  // whether the account exists.
+  if (error?.status === 429) {
+    return { error: "Too many requests. Try again in a little while.", email };
+  }
+
+  return {
+    message:
+      "If there’s an account for that email, a reset link is on its way.",
+    email,
+  };
+}
+
+// Sets a new password for the user signed in by a reset link.
+export async function updatePassword(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  if (password.length < 8) {
+    return { error: "Password should be at least 8 characters." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ password });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  redirect("/");
 }
 
 export async function signOut() {

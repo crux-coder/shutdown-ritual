@@ -72,6 +72,14 @@ export function AuthForm({ mode, action, initialError }: Props) {
             minLength={mode === "signup" ? 8 : undefined}
             required
           />
+          {mode === "login" && (
+            <Link
+              href="/forgot-password"
+              className="-mt-2 self-end text-sm text-base-content/50 link link-hover"
+            >
+              Forgot password?
+            </Link>
+          )}
 
           {state?.error && (
             <p role="alert" className="text-sm text-error">

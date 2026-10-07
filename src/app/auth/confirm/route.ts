@@ -19,8 +19,13 @@ export async function GET(request: NextRequest) {
       : { error: new Error("Missing confirmation token") };
 
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=confirm`);
+    return NextResponse.redirect(
+      `${origin}/login?error=${type === "recovery" ? "reset" : "confirm"}`,
+    );
   }
 
-  return NextResponse.redirect(`${origin}/`);
+  // A password reset link signs the user in to choose a new password.
+  return NextResponse.redirect(
+    `${origin}${type === "recovery" ? "/reset-password" : "/"}`,
+  );
 }
