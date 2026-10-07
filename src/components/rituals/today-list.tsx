@@ -6,7 +6,9 @@ import { today } from "@/lib/dates";
 import { minutesUntilNextPhase, todayPhase } from "@/lib/day-hours";
 import { getTodaysRituals, type TodaysRitual } from "@/lib/rituals/queries";
 import type { SoundId } from "@/lib/sounds";
+import { suggestionsEnabled } from "@/lib/rituals/suggest";
 import { DayPrompt, RefreshIn, ShutDownView } from "./day-prompt";
+import { TailorNudge, WelcomeCard } from "./first-day-cards";
 import { HandoffNote } from "./handoff-note";
 import { ShutdownFlow } from "./shutdown-flow";
 import { TodayRitual } from "./today-ritual";
@@ -51,6 +53,20 @@ export async function TodayList() {
       : null;
   const noteFromToday =
     user.handoffNoteOn === date ? (user.handoffNote ?? "") : "";
+
+  // For someone new: a welcome until they put it away or first shut down,
+  // then, from the next day, an offer to make the ritual their own.
+  const showWelcome = !user.welcomeDismissed && !user.dayShutDownOn;
+  const showTailorNudge =
+    !user.tailorNudgeDismissed &&
+    !!user.dayShutDownOn &&
+    user.dayShutDownOn < date;
+  const welcomeOpens =
+    rituals.length === 0
+      ? `It runs on weekdays, opening at ${user.dayEndsAt} when your workday ends.`
+      : phase === "end"
+        ? "It’s open below. Work through it whenever you’re ready."
+        : `It opens at ${user.dayEndsAt}, when your workday ends. To try it now, tap “End my day early” below.`;
 
   // Closing the day is always possible, whatever's still open; unfinished
   // rituals just stay unticked.
@@ -101,6 +117,10 @@ export async function TodayList() {
       <TimeZoneSync stored={user.timeZone} />
       {refreshIn !== null && <RefreshIn minutes={refreshIn} />}
       {noteFromBefore && <HandoffNote note={noteFromBefore} />}
+      {showWelcome && <WelcomeCard opens={welcomeOpens} />}
+      {showTailorNudge && (
+        <TailorNudge suggestionsEnabled={suggestionsEnabled()} />
+      )}
 
       {rituals.length === 0 ? (
         <div className="flex flex-col gap-2">

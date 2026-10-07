@@ -16,7 +16,6 @@ export type Profile = {
   id: string;
   email: string;
   firstName: string;
-  lastName: string;
   timeZone: string | null;
   // Local wall-clock times, "HH:MM".
   dayStartsAt: string;
@@ -34,6 +33,9 @@ export type Profile = {
   // The note left for the next day, and the local date it was written on.
   handoffNote: string | null;
   handoffNoteOn: string | null;
+  // Whether the user has put away Today's first-day cards.
+  welcomeDismissed: boolean;
+  tailorNudgeDismissed: boolean;
   onboardingStep: OnboardingStep;
 };
 
@@ -63,7 +65,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "first_name, last_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, start_sound, shutdown_sound, shutdown_phrase, shutdown_mode, handoff_note, handoff_note_on, onboarding_step",
+      "first_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, start_sound, shutdown_sound, shutdown_phrase, shutdown_mode, handoff_note, handoff_note_on, welcome_dismissed_at, tailor_nudge_dismissed_at, onboarding_step",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -80,7 +82,6 @@ export const getProfile = cache(async (): Promise<Profile> => {
     id: user.id,
     email: user.email ?? "",
     firstName: data?.first_name ?? "",
-    lastName: data?.last_name ?? "",
     timeZone: data?.time_zone ?? null,
     // Postgres returns "HH:MM:SS".
     dayStartsAt: data?.day_starts_at?.slice(0, 5) ?? DEFAULT_DAY_STARTS_AT,
@@ -96,6 +97,8 @@ export const getProfile = cache(async (): Promise<Profile> => {
     shutdownMode: data?.shutdown_mode === "button" ? "button" : "phrase",
     handoffNote: data?.handoff_note || null,
     handoffNoteOn: data?.handoff_note_on ?? null,
+    welcomeDismissed: Boolean(data?.welcome_dismissed_at),
+    tailorNudgeDismissed: Boolean(data?.tailor_nudge_dismissed_at),
     onboardingStep: data?.onboarding_step ?? "name",
   };
 });

@@ -4,13 +4,7 @@ import { useActionState } from "react";
 import { TextField } from "@/components/text-field";
 import { saveName, type NameStepState } from "./actions";
 
-export function NameStep({
-  firstName,
-  lastName,
-}: {
-  firstName: string;
-  lastName: string;
-}) {
+export function NameStep({ firstName }: { firstName: string }) {
   const [state, formAction, pending] = useActionState(
     (prev: NameStepState, formData: FormData) => {
       // Only the browser knows where the user is; it decides which day is today.
@@ -33,14 +27,6 @@ export function NameStep({
         maxLength={50}
         required
         autoFocus
-      />
-      <TextField
-        label="Last name"
-        name="lastName"
-        autoComplete="family-name"
-        defaultValue={state?.lastName ?? lastName}
-        maxLength={50}
-        required
       />
 
       {state?.error && (

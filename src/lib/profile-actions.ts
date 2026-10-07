@@ -95,6 +95,34 @@ export async function dismissHandoffNote(): Promise<void> {
   refresh();
 }
 
+// Puts away Today's welcome card for good.
+export async function dismissWelcome(): Promise<void> {
+  await markNow("welcome_dismissed_at");
+}
+
+// Puts away the "make it your own" card for good.
+export async function dismissTailorNudge(): Promise<void> {
+  await markNow("tailor_nudge_dismissed_at");
+}
+
+async function markNow(
+  column: "welcome_dismissed_at" | "tailor_nudge_dismissed_at",
+): Promise<void> {
+  const user = await getCurrentUser();
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ [column]: new Date().toISOString() })
+    .eq("id", user.id);
+
+  if (error) {
+    throw new Error(`Failed to put the card away: ${error.message}`);
+  }
+
+  refresh();
+}
+
 async function markToday(
   column: "day_started_early_on" | "day_ended_early_on" | "day_shut_down_on",
 ): Promise<void> {

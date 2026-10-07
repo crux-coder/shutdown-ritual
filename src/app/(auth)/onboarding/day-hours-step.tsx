@@ -69,7 +69,7 @@ export function DayHoursStep({
           className="btn btn-primary btn-lg"
         >
           {pending && <span className="loading loading-spinner loading-sm" />}
-          {pending ? "Saving…" : "Continue"}
+          {pending ? "Setting up…" : "Get started"}
         </button>
       </div>
     </form>

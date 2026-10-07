@@ -3,13 +3,11 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getProfile } from "@/lib/auth";
 import { ONBOARDING_STEPS } from "@/lib/onboarding";
-import { suggestionsEnabled } from "@/lib/rituals/suggest";
 import { signOut } from "../actions";
 import { AuthBottom, AuthMain, AuthTop } from "../frame";
 import { goBack } from "./actions";
 import { DayHoursStep } from "./day-hours-step";
 import { NameStep } from "./name-step";
-import { RitualStep } from "./ritual-step";
 
 export const metadata: Metadata = { title: "Welcome" };
 
@@ -51,7 +49,7 @@ async function CurrentStep() {
           subtitle="What should we call you at the end of the day?"
           className="max-w-sm"
         >
-          <NameStep firstName={profile.firstName} lastName={profile.lastName} />
+          <NameStep firstName={profile.firstName} />
         </Step>
       );
 
@@ -67,21 +65,6 @@ async function CurrentStep() {
             dayStartsAt={profile.dayStartsAt}
             dayEndsAt={profile.dayEndsAt}
             backAction={goBack.bind(null, "day_hours")}
-          />
-        </Step>
-      );
-
-    case "first_ritual":
-      return (
-        <Step
-          step="first_ritual"
-          title={`Your first ritual, ${profile.firstName}`}
-          subtitle="Start with one. You can add more later."
-          className="max-w-lg"
-        >
-          <RitualStep
-            backAction={goBack.bind(null, "first_ritual")}
-            suggestionsEnabled={suggestionsEnabled()}
           />
         </Step>
       );

@@ -8,11 +8,9 @@ import { SaveButton, SaveStatus } from "./settings-section";
 
 export function NameForm({
   firstName,
-  lastName,
   email,
 }: {
   firstName: string;
-  lastName: string;
   email: string;
 }) {
   const [state, formAction, pending] = useActionState(updateName, undefined);
@@ -28,16 +26,8 @@ export function NameForm({
           maxLength={MAX_NAME_LENGTH}
           required
         />
-        <TextField
-          label="Last name"
-          name="lastName"
-          autoComplete="family-name"
-          defaultValue={lastName}
-          maxLength={MAX_NAME_LENGTH}
-          required
-        />
+        <TextField label="Email" type="email" value={email} readOnly disabled />
       </div>
-      <TextField label="Email" type="email" value={email} readOnly disabled />
 
       <div className="flex items-center justify-end gap-4">
         <SaveStatus state={state} />

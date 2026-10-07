@@ -4,15 +4,12 @@ import { isValidTime, toMinutes } from "@/lib/day-hours";
 
 export const MAX_NAME_LENGTH = 50;
 
-// An error message, or null if the name is fine. Expects trimmed values.
-export function validateName(
-  firstName: string,
-  lastName: string,
-): string | null {
-  if (!firstName || !lastName) {
-    return "Please enter your first and last name.";
+// An error message, or null if the name is fine. Expects a trimmed value.
+export function validateName(firstName: string): string | null {
+  if (!firstName) {
+    return "Please enter your first name.";
   }
-  if (firstName.length > MAX_NAME_LENGTH || lastName.length > MAX_NAME_LENGTH) {
+  if (firstName.length > MAX_NAME_LENGTH) {
     return `Names can be up to ${MAX_NAME_LENGTH} characters.`;
   }
   return null;

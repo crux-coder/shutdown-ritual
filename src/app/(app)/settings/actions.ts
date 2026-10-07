@@ -19,12 +19,11 @@ export async function updateName(
   formData: FormData,
 ): Promise<SettingsState> {
   const firstName = String(formData.get("firstName") ?? "").trim();
-  const lastName = String(formData.get("lastName") ?? "").trim();
 
-  const error = validateName(firstName, lastName);
+  const error = validateName(firstName);
   if (error) return { status: "error", error };
 
-  return updateProfile({ first_name: firstName, last_name: lastName });
+  return updateProfile({ first_name: firstName });
 }
 
 export async function updateDayHours(

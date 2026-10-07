@@ -42,6 +42,30 @@ export function NewRitualButton({
   );
 }
 
+// Opens the new-ritual dialog straight on the AI's three questions, for
+// tailoring a ritual from somewhere other than the Rituals page.
+export function TailorRitualButton({
+  className,
+  onCreated,
+  children,
+}: {
+  className: string;
+  // Called once a ritual has been saved from the dialog.
+  onCreated?: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <RitualDialog
+      triggerClassName={className}
+      suggestionsEnabled
+      startWithQuestions
+      onCreated={onCreated}
+    >
+      {children}
+    </RitualDialog>
+  );
+}
+
 export function EditRitualButton({ ritual }: { ritual: Ritual }) {
   return (
     <RitualDialog
@@ -62,12 +86,16 @@ export function EditRitualButton({ ritual }: { ritual: Ritual }) {
 function RitualDialog({
   ritual,
   suggestionsEnabled = false,
+  startWithQuestions = false,
+  onCreated,
   triggerLabel,
   triggerClassName,
   children,
 }: {
   ritual?: Ritual;
   suggestionsEnabled?: boolean;
+  startWithQuestions?: boolean;
+  onCreated?: () => void;
   triggerLabel?: string;
   triggerClassName: string;
   children: ReactNode;
@@ -121,7 +149,9 @@ function RitualDialog({
             <NewRitualForm
               key={formKey}
               suggestionsEnabled={suggestionsEnabled}
+              startWithQuestions={startWithQuestions}
               onDone={close}
+              onCreated={onCreated}
             />
           )}
         </div>
@@ -135,20 +165,29 @@ function RitualDialog({
 
 function NewRitualForm({
   suggestionsEnabled,
+  startWithQuestions,
   onDone,
+  onCreated,
 }: {
   suggestionsEnabled: boolean;
+  startWithQuestions: boolean;
   onDone: () => void;
+  onCreated?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(
     async (...args: Parameters<typeof createRitual>) => {
       const result = await createRitual(...args);
-      if (result?.status === "success") onDone();
+      if (result?.status === "success") {
+        onDone();
+        onCreated?.();
+      }
       return result;
     },
     undefined,
   );
-  const flow = useNewRitualFlow();
+  const flow = useNewRitualFlow({
+    startWith: startWithQuestions ? "questions" : "choice",
+  });
   const { stage } = flow;
 
   return (

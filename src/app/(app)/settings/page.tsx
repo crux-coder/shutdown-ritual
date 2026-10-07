@@ -21,11 +21,7 @@ async function ProfileSettings() {
   return (
     <div className="flex flex-col gap-6">
       <SettingsSection title="Profile" description="How we greet you each day.">
-        <NameForm
-          firstName={user.firstName}
-          lastName={user.lastName}
-          email={user.email}
-        />
+        <NameForm firstName={user.firstName} email={user.email} />
       </SettingsSection>
       <SettingsSection title="Password" description="At least 8 characters.">
         <PasswordForm />

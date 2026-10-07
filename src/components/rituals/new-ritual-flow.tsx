@@ -46,8 +46,16 @@ const LAST_QUESTION = SUGGESTION_QUESTIONS.length - 1;
 
 export type NewRitualFlow = ReturnType<typeof useNewRitualFlow>;
 
-export function useNewRitualFlow() {
-  const [stage, setStage] = useState<Stage>({ kind: "choose" });
+// `startWith: "questions"` skips the choice and opens on the first AI
+// question; Back still leads to the choice.
+export function useNewRitualFlow({
+  startWith = "choice",
+}: { startWith?: "choice" | "questions" } = {}) {
+  const [stage, setStage] = useState<Stage>(
+    startWith === "questions"
+      ? { kind: "question", index: 0 }
+      : { kind: "choose" },
+  );
   const [answers, setAnswers] = useState<SuggestionAnswers>({
     work: "",
     struggle: "",
@@ -157,14 +165,11 @@ export function NewRitualScreen({
   flow,
   suggestionsEnabled,
   submitted,
-  minimal = false,
 }: {
   flow: NewRitualFlow;
   // Whether OpenAI is set up; without it, AI isn't offered.
   suggestionsEnabled: boolean;
   submitted?: RitualFormValues;
-  // A shorter ritual form, as in onboarding.
-  minimal?: boolean;
 }) {
   const { stage, question } = flow;
 
@@ -269,7 +274,6 @@ export function NewRitualScreen({
     <RitualFields
       key={flow.fresh ? flow.picked.key : "submitted"}
       values={flow.fresh || !submitted ? flow.picked.values : submitted}
-      minimal={minimal}
     />
   );
 }

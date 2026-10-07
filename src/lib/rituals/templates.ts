@@ -47,6 +47,22 @@ function template(
   };
 }
 
+// The ritual every new user starts with, so they can feel a shutdown before
+// designing their own. Also inserted by the
+// *_default_ritual_and_first_day_cards.sql migration; keep them in sync.
+export const DEFAULT_RITUAL: RitualFormValues = {
+  title: "Shutdown for the day",
+  description: "",
+  steps: [
+    "Check for anything truly urgent; park the rest",
+    "Capture every open task somewhere you trust",
+    "Look over tomorrow’s calendar",
+  ],
+  moment: "end_of_day",
+  days: WEEKDAYS_ONLY,
+  integrations: [],
+};
+
 export const RITUAL_TEMPLATES: RitualTemplate[] = [
   // Anyone
   template("plan-the-day", "anyone", "Decide what today is for", {

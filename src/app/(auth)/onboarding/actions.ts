@@ -5,22 +5,14 @@ import { getProfile } from "@/lib/auth";
 import { isValidTimeZone } from "@/lib/dates";
 import { nextStep, previousStep, type OnboardingStep } from "@/lib/onboarding";
 import { validateDayHours, validateName } from "@/lib/profile";
-import {
-  readRitualValues,
-  toRitualRow,
-  validateRitual,
-  type RitualFormValues,
-} from "@/lib/rituals/form";
+import { toRitualRow } from "@/lib/rituals/form";
+import { DEFAULT_RITUAL } from "@/lib/rituals/templates";
 import { createClient } from "@/lib/supabase/server";
 
-export type NameStepState =
-  { error?: string; firstName?: string; lastName?: string } | undefined;
+export type NameStepState = { error?: string; firstName?: string } | undefined;
 
 export type DayHoursStepState =
   { error: string; dayStartsAt: string; dayEndsAt: string } | undefined;
-
-export type RitualStepState =
-  { error: string; values: RitualFormValues } | undefined;
 
 export async function saveName(
   _prev: NameStepState,
@@ -28,12 +20,11 @@ export async function saveName(
 ): Promise<NameStepState> {
   const profile = await getProfile();
   const firstName = String(formData.get("firstName") ?? "").trim();
-  const lastName = String(formData.get("lastName") ?? "").trim();
   const timeZone = String(formData.get("timeZone") ?? "");
 
-  const nameError = validateName(firstName, lastName);
+  const nameError = validateName(firstName);
   if (nameError) {
-    return { error: nameError, firstName, lastName };
+    return { error: nameError, firstName };
   }
 
   // Upsert in case the profile row is missing; the signup trigger normally
@@ -42,13 +33,12 @@ export async function saveName(
   const { error } = await supabase.from("profiles").upsert({
     id: profile.id,
     first_name: firstName,
-    last_name: lastName,
     time_zone: isValidTimeZone(timeZone) ? timeZone : profile.timeZone,
     onboarding_step: nextStep("name"),
   });
 
   if (error) {
-    return { error: error.message, firstName, lastName };
+    return { error: error.message, firstName };
   }
 
   redirect("/onboarding");
@@ -67,6 +57,13 @@ export async function saveDayHours(
     return { error: hoursError, dayStartsAt, dayEndsAt };
   }
 
+  // The last step: onboarding ends with a ready-made ritual rather than
+  // asking the user to design one before they've felt a shutdown.
+  const ritualError = await giveDefaultRitual(profile.id);
+  if (ritualError) {
+    return { error: ritualError, dayStartsAt, dayEndsAt };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("profiles")
@@ -81,46 +78,6 @@ export async function saveDayHours(
     return { error: error.message, dayStartsAt, dayEndsAt };
   }
 
-  redirect("/onboarding");
-}
-
-export async function createFirstRitual(
-  _prev: RitualStepState,
-  formData: FormData,
-): Promise<RitualStepState> {
-  const profile = await getProfile();
-  const values = readRitualValues(formData);
-
-  const error = validateRitual(values);
-  if (error) {
-    return { error, values };
-  }
-
-  const supabase = await createClient();
-  const { error: insertError } = await supabase
-    .from("rituals")
-    .insert({ user_id: profile.id, ...toRitualRow(values) });
-
-  if (insertError) {
-    return { error: insertError.message, values };
-  }
-
-  const { error: stepError } = await setStep(
-    profile.id,
-    nextStep("first_ritual"),
-  );
-  if (stepError) {
-    return { error: stepError.message, values };
-  }
-
-  redirect("/today");
-}
-
-// Rituals can wait: the user lands on an empty today view that points them
-// to the Rituals page.
-export async function skipFirstRitual() {
-  const profile = await getProfile();
-  await setStep(profile.id, nextStep("first_ritual"));
   redirect("/today");
 }
 
@@ -136,4 +93,20 @@ async function setStep(userId: string, step: OnboardingStep) {
     .from("profiles")
     .update({ onboarding_step: step })
     .eq("id", userId);
+}
+
+// Adds the default ritual, unless the user already has rituals (say, from
+// going back and forth through onboarding). Returns an error message, if any.
+async function giveDefaultRitual(userId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { count, error } = await supabase
+    .from("rituals")
+    .select("id", { count: "exact", head: true });
+  if (error) return error.message;
+  if (count) return null;
+
+  const { error: insertError } = await supabase
+    .from("rituals")
+    .insert({ user_id: userId, ...toRitualRow(DEFAULT_RITUAL) });
+  return insertError?.message ?? null;
 }
