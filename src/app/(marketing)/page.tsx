@@ -65,7 +65,7 @@ function Hero() {
           </a>
         </div>
         <p className="mt-4 text-sm text-base-content/50">
-          Free to use. No card, no trial.
+          No card needed to sign up.
         </p>
       </div>
 
@@ -440,8 +440,7 @@ function ClosingCall() {
           Tonight, try stopping on purpose.
         </h2>
         <p className="mx-auto mt-4 max-w-lg text-primary-content/80">
-          It’s free, takes a minute to set up, and a few minutes at the end of
-          each day.
+          It takes a minute to set up, and a few minutes at the end of each day.
         </p>
         <Link
           href="/sign-up"

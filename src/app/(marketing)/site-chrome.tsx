@@ -38,7 +38,6 @@ export function SiteFooter() {
           </Link>
           <p className="mt-4 text-sm text-base-content/55">
             A calm, intentional way to start your workday and close it properly.
-            Free to use.
           </p>
         </div>
         <nav className="flex gap-12 text-sm">

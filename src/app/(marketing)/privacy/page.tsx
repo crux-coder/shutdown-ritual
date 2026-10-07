@@ -22,9 +22,8 @@ export default function PrivacyPage() {
           How we handle your data
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-base-content/65">
-          Shutdown Ritual is a small, free app. We keep only what it needs to
-          work, we don’t sell anything, and there are no ads, analytics or
-          trackers.
+          Shutdown Ritual is a small app. We keep only what it needs to work, we
+          don’t sell your data, and there are no ads, analytics or trackers.
         </p>
         <p className="mt-3 text-sm text-base-content/45">
           Last updated 7 October 2026
