@@ -1,51 +1,44 @@
 import { Suspense } from "react";
-import { NewRitualButton } from "@/components/rituals/ritual-dialog";
-import {
-  RitualList,
-  RitualListSkeleton,
-} from "@/components/rituals/ritual-list";
+import { AppHeader } from "@/components/app-header";
+import { TodayList, TodayListSkeleton } from "@/components/rituals/today-list";
 import { getCurrentUser } from "@/lib/auth";
-import { signOut } from "./(auth)/actions";
+import { currentDaypart, type Daypart } from "@/lib/daypart";
+
+const GREETINGS: Record<Daypart, { title: string; subtitle: string }> = {
+  morning: {
+    title: "Good morning",
+    subtitle: "Take a breath. Let\u2019s set a gentle pace for the day.",
+  },
+  afternoon: {
+    title: "Good afternoon",
+    subtitle: "Keep it steady. Your rituals are here when you need them.",
+  },
+  evening: {
+    title: "Good evening",
+    subtitle:
+      "Take a breath. Let\u2019s gently wrap up today and make space for tomorrow.",
+  },
+  night: {
+    title: "Good evening",
+    subtitle: "It\u2019s late. Close what\u2019s open, and let the day go.",
+  },
+};
 
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
-      <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <span className="font-serif text-sm tracking-[0.3em] text-base-content/40 uppercase">
-          Shutdown Ritual
-        </span>
-        <div className="flex items-center gap-2">
-          <Suspense>
-            <UserName />
-          </Suspense>
-          <form action={signOut}>
-            <button type="submit" className="btn btn-ghost btn-sm">
-              Sign out
-            </button>
-          </form>
-        </div>
-      </header>
+      <AppHeader current="/" />
 
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 pt-12 pb-24 sm:pt-20">
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-6 pt-12 pb-24 sm:pt-20">
         <div className="text-center">
-          <Suspense fallback={<Greeting />}>
+          <Suspense fallback={<GreetingSkeleton />}>
             <UserGreeting />
           </Suspense>
-          <p className="mx-auto mt-4 max-w-md text-base-content/60">
-            Take a breath. Let&apos;s gently wrap up today and make space for
-            tomorrow.
-          </p>
         </div>
 
         <section className="mt-16">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <h2 className="font-serif text-2xl font-light tracking-tight">
-              Your rituals
-            </h2>
-            <NewRitualButton />
-          </div>
-          <Suspense fallback={<RitualListSkeleton />}>
-            <RitualList />
+          <Suspense fallback={<TodayListSkeleton />}>
+            <TodayList />
           </Suspense>
         </section>
       </main>
@@ -53,24 +46,25 @@ export default function Home() {
   );
 }
 
-async function UserName() {
+async function UserGreeting() {
   const user = await getCurrentUser();
+  const { title, subtitle } = GREETINGS[currentDaypart(user.timeZone)];
+
   return (
-    <span className="hidden text-sm text-base-content/60 sm:inline">
-      {user.firstName} {user.lastName}
-    </span>
+    <div className="motion-safe:animate-rise">
+      <h1 className="font-serif text-4xl font-light tracking-tight sm:text-5xl">
+        {title}, {user.firstName}
+      </h1>
+      <p className="mx-auto mt-4 max-w-md text-base-content/60">{subtitle}</p>
+    </div>
   );
 }
 
-async function UserGreeting() {
-  const user = await getCurrentUser();
-  return <Greeting name={user.firstName} />;
-}
-
-function Greeting({ name }: { name?: string }) {
+function GreetingSkeleton() {
   return (
-    <h1 className="font-serif text-4xl font-light tracking-tight sm:text-5xl">
-      Good evening{name ? `, ${name}` : ""}
-    </h1>
+    <div aria-hidden className="flex flex-col items-center">
+      <div className="skeleton h-10 w-72 sm:h-12" />
+      <div className="skeleton mt-4 h-5 w-80 max-w-full" />
+    </div>
   );
 }

@@ -3,77 +3,27 @@
 import { refresh } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import { today } from "@/lib/dates";
 import {
-  MAX_DESCRIPTION_LENGTH,
-  MAX_TITLE_LENGTH,
-  RITUAL_INTEGRATIONS,
-  RITUAL_MOMENTS,
-  WEEKDAYS,
-  type RitualIntegration,
-  type RitualMoment,
-  type Weekday,
-} from "./options";
-
-export type RitualFormValues = {
-  title: string;
-  description: string;
-  moment: RitualMoment;
-  days: Weekday[];
-  integrations: RitualIntegration[];
-};
+  readRitualValues,
+  toRitualRow,
+  validateRitual,
+  type RitualFormValues,
+} from "./form";
 
 export type RitualFormState =
   | { status: "error"; error: string; values: RitualFormValues }
   | { status: "success" }
   | undefined;
 
-const MOMENT_IDS = new Set<string>(RITUAL_MOMENTS.map((m) => m.id));
-const INTEGRATION_IDS = new Set<string>(RITUAL_INTEGRATIONS.map((i) => i.id));
-const WEEKDAY_IDS = new Set<number>(WEEKDAYS.map((d) => d.id));
-
-function readValues(formData: FormData): RitualFormValues {
-  const moment = String(formData.get("moment") ?? "");
-  return {
-    title: String(formData.get("title") ?? "").trim(),
-    description: String(formData.get("description") ?? "").trim(),
-    moment: (MOMENT_IDS.has(moment) ? moment : "end_of_day") as RitualMoment,
-    days: [...new Set(formData.getAll("days").map(Number))]
-      .filter((d) => WEEKDAY_IDS.has(d))
-      .sort((a, b) => a - b) as Weekday[],
-    integrations: formData
-      .getAll("integrations")
-      .map(String)
-      .filter((i) => INTEGRATION_IDS.has(i)) as RitualIntegration[],
-  };
-}
-
-function validate(values: RitualFormValues): string | undefined {
-  if (!values.title) return "Give your ritual a name.";
-  if (values.title.length > MAX_TITLE_LENGTH)
-    return `Names can be up to ${MAX_TITLE_LENGTH} characters.`;
-  if (values.description.length > MAX_DESCRIPTION_LENGTH)
-    return `Descriptions can be up to ${MAX_DESCRIPTION_LENGTH} characters.`;
-  if (values.days.length === 0) return "Pick at least one day.";
-}
-
-function toRow(values: RitualFormValues) {
-  return {
-    title: values.title,
-    description: values.description || null,
-    moment: values.moment,
-    days: values.days,
-    integrations: values.integrations,
-  };
-}
-
 export async function createRitual(
   _prev: RitualFormState,
   formData: FormData,
 ): Promise<RitualFormState> {
   const user = await getCurrentUser();
-  const values = readValues(formData);
+  const values = readRitualValues(formData);
 
-  const error = validate(values);
+  const error = validateRitual(values);
   if (error) {
     return { status: "error", error, values };
   }
@@ -81,7 +31,7 @@ export async function createRitual(
   const supabase = await createClient();
   const { error: insertError } = await supabase
     .from("rituals")
-    .insert({ user_id: user.id, ...toRow(values) });
+    .insert({ user_id: user.id, ...toRitualRow(values) });
 
   if (insertError) {
     return { status: "error", error: insertError.message, values };
@@ -97,9 +47,9 @@ export async function updateRitual(
 ): Promise<RitualFormState> {
   const user = await getCurrentUser();
   const id = String(formData.get("id") ?? "");
-  const values = readValues(formData);
+  const values = readRitualValues(formData);
 
-  const error = validate(values);
+  const error = validateRitual(values);
   if (error) {
     return { status: "error", error, values };
   }
@@ -109,7 +59,7 @@ export async function updateRitual(
   const supabase = await createClient();
   const { data, error: updateError } = await supabase
     .from("rituals")
-    .update(toRow(values))
+    .update(toRitualRow(values))
     .eq("id", id)
     .eq("user_id", user.id)
     .select("id");
@@ -134,6 +84,36 @@ export async function deleteRitual(id: string): Promise<{ error?: string }> {
     .delete()
     .eq("id", id)
     .eq("user_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  refresh();
+  return {};
+}
+
+export async function setRitualCompleted(
+  ritualId: string,
+  completed: boolean,
+): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  const { date } = today(user.timeZone);
+
+  const supabase = await createClient();
+  const { error } = completed
+    ? await supabase
+        .from("ritual_completions")
+        .upsert(
+          { ritual_id: ritualId, user_id: user.id, completed_on: date },
+          { ignoreDuplicates: true },
+        )
+    : await supabase
+        .from("ritual_completions")
+        .delete()
+        .eq("ritual_id", ritualId)
+        .eq("user_id", user.id)
+        .eq("completed_on", date);
 
   if (error) {
     return { error: error.message };

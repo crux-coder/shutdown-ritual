@@ -4,8 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthState =
-  | { error?: string; message?: string; email?: string }
-  | undefined;
+  { error?: string; message?: string; email?: string } | undefined;
 
 function readCredentials(formData: FormData) {
   return {
@@ -65,7 +64,7 @@ export async function signup(
 
   // Email confirmation disabled in Supabase → we already have a session.
   if (data.session) {
-    redirect("/");
+    redirect("/onboarding");
   }
 
   return {

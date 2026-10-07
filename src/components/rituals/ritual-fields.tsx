@@ -1,0 +1,119 @@
+import {
+  MAX_DESCRIPTION_LENGTH,
+  MAX_TITLE_LENGTH,
+  RITUAL_INTEGRATIONS,
+  RITUAL_MOMENTS,
+  WEEKDAYS,
+} from "@/lib/rituals/options";
+import type { RitualFormValues } from "@/lib/rituals/form";
+
+// The inputs of a ritual form, read by readRitualValues on the server.
+export function RitualFields({ values }: { values: RitualFormValues }) {
+  return (
+    <>
+      <fieldset className="fieldset gap-3">
+        <label className="floating-label">
+          <span>Name</span>
+          <input
+            type="text"
+            name="title"
+            placeholder="Name, e.g. Friday wrap-up"
+            defaultValue={values.title}
+            maxLength={MAX_TITLE_LENGTH}
+            required
+            autoFocus
+            className="input w-full"
+          />
+        </label>
+        <label className="floating-label">
+          <span>Description (optional)</span>
+          <textarea
+            name="description"
+            placeholder="Description (optional)"
+            defaultValue={values.description}
+            maxLength={MAX_DESCRIPTION_LENGTH}
+            rows={2}
+            className="textarea w-full"
+          />
+        </label>
+      </fieldset>
+
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">When</legend>
+        <div className="grid grid-cols-2 gap-2">
+          {RITUAL_MOMENTS.map((moment) => (
+            <label
+              key={moment.id}
+              className="flex cursor-pointer flex-col gap-0.5 rounded-box border border-base-300 p-3 transition-colors has-checked:border-primary has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-primary"
+            >
+              <input
+                type="radio"
+                name="moment"
+                value={moment.id}
+                defaultChecked={values.moment === moment.id}
+                className="sr-only"
+              />
+              <span className="text-sm font-medium">{moment.label}</span>
+              <span className="text-xs text-base-content/60">
+                {moment.hint}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">Repeat on</legend>
+        <div className="flex flex-wrap gap-1.5">
+          {WEEKDAYS.map((day) => (
+            <input
+              key={day.id}
+              type="checkbox"
+              name="days"
+              value={day.id}
+              aria-label={day.short}
+              title={day.long}
+              defaultChecked={values.days.includes(day.id)}
+              className="btn btn-sm btn-circle size-10 checked:btn-primary"
+            />
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="fieldset">
+        <legend className="fieldset-legend">
+          Integrations
+          <span className="badge badge-ghost badge-sm font-normal">
+            Coming soon
+          </span>
+        </legend>
+        <div className="grid grid-cols-2 gap-2">
+          {RITUAL_INTEGRATIONS.map((integration) => (
+            <label
+              key={integration.id}
+              className="flex cursor-pointer items-start gap-2.5 rounded-box border border-base-300 p-3 transition-colors has-checked:border-primary has-checked:bg-primary/10"
+            >
+              <input
+                type="checkbox"
+                name="integrations"
+                value={integration.id}
+                defaultChecked={values.integrations.includes(integration.id)}
+                className="checkbox checkbox-sm checkbox-primary mt-0.5"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium">{integration.label}</span>
+                <span className="text-xs text-base-content/60">
+                  {integration.hint}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+        <p className="label">
+          Pick what this ritual should look at. Connecting accounts is on the
+          way.
+        </p>
+      </fieldset>
+    </>
+  );
+}

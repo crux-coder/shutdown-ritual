@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
+import { Sky } from "@/components/sky";
 import "./globals.css";
 
 const inter = Inter({
@@ -25,8 +26,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      // The inline script in <Sky> sets data-daypart before hydration.
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col bg-base-100 font-sans text-base-content">
+      <body className="isolate flex min-h-full flex-col bg-base-100 font-sans text-base-content">
+        <Sky />
         {children}
       </body>
     </html>

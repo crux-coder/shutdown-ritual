@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_ROUTES = ["/login", "/signup"];
 const PUBLIC_PREFIXES = ["/auth"];
-const ONBOARDING_ROUTE = "/onboarding";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -34,7 +33,6 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
   const isSignedIn = Boolean(claims);
-  const isOnboarded = Boolean(claims?.user_metadata?.first_name);
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
@@ -49,15 +47,8 @@ export async function updateSession(request: NextRequest) {
     return redirectTo(request, response, "/");
   }
 
-  const isOnboarding = pathname === ONBOARDING_ROUTE;
-
-  if (isSignedIn && !isOnboarded && !isPublic && !isOnboarding) {
-    return redirectTo(request, response, ONBOARDING_ROUTE);
-  }
-
-  if (isSignedIn && isOnboarded && isOnboarding) {
-    return redirectTo(request, response, "/");
-  }
+  // Onboarding progress lives in the database, so pages check it themselves
+  // (see getCurrentUser) rather than adding a query to every request here.
 
   return response;
 }

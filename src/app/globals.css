@@ -89,3 +89,121 @@
   --font-sans: var(--font-inter);
   --font-serif: var(--font-fraunces);
 }
+
+/* Rise: content drifts up from just below and fades in. */
+@theme {
+  --animate-rise: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  /* Pop: a small, quick version for popovers. */
+  --animate-pop: pop 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(-0.25rem) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+/* Sky: a backdrop for the time of day, set by <Sky> on <html data-daypart>.
+   Each part is its own layer so changes crossfade slowly. */
+:root {
+  --sky-morning:
+    radial-gradient(
+      ellipse 90% 55% at 50% 105%,
+      rgb(255 200 135 / 0.55),
+      transparent 70%
+    ),
+    linear-gradient(to bottom, #e9eff2, #faf6f0 45%, #fde6cb);
+  --sky-afternoon:
+    radial-gradient(
+      ellipse 70% 45% at 50% -5%,
+      rgb(255 234 196 / 0.7),
+      transparent 70%
+    ),
+    linear-gradient(to bottom, #f7f3ea, #faf6f0);
+  --sky-evening:
+    radial-gradient(
+      ellipse 100% 60% at 50% 105%,
+      rgb(230 135 95 / 0.45),
+      transparent 70%
+    ),
+    linear-gradient(to bottom, #ebe1e5, #f7e9df 50%, #f2cbb0);
+  --sky-night: linear-gradient(to bottom, #e2e4ed, #f1ede8 70%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sky-morning:
+      radial-gradient(
+        ellipse 90% 55% at 50% 105%,
+        rgb(214 140 80 / 0.22),
+        transparent 70%
+      ),
+      linear-gradient(to bottom, #1c1f25, #1f1a17 50%, #291f18);
+    --sky-afternoon:
+      radial-gradient(
+        ellipse 70% 45% at 50% -5%,
+        rgb(221 180 135 / 0.1),
+        transparent 70%
+      ),
+      linear-gradient(to bottom, #221d1a, #1f1a17);
+    --sky-evening:
+      radial-gradient(
+        ellipse 100% 60% at 50% 105%,
+        rgb(208 110 80 / 0.28),
+        transparent 70%
+      ),
+      linear-gradient(to bottom, #221b21, #1f1a17 50%, #311e17);
+    --sky-night: linear-gradient(to bottom, #15171f, #1f1a17 70%);
+  }
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  & > div {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 6s ease;
+  }
+}
+
+.sky-morning {
+  background: var(--sky-morning);
+}
+.sky-afternoon {
+  background: var(--sky-afternoon);
+}
+.sky-evening {
+  background: var(--sky-evening);
+}
+.sky-night {
+  background: var(--sky-night);
+}
+
+[data-daypart="morning"] .sky-morning,
+[data-daypart="afternoon"] .sky-afternoon,
+[data-daypart="evening"] .sky-evening,
+[data-daypart="night"] .sky-night {
+  opacity: 1;
+}

@@ -1,11 +1,24 @@
 "use client";
 
 import { useActionState } from "react";
-import { completeOnboarding } from "./actions";
+import { saveName, type NameStepState } from "./actions";
 
-export function OnboardingForm() {
+export function NameStep({
+  firstName,
+  lastName,
+}: {
+  firstName: string;
+  lastName: string;
+}) {
   const [state, formAction, pending] = useActionState(
-    completeOnboarding,
+    (prev: NameStepState, formData: FormData) => {
+      // Only the browser knows where the user is; it decides which day is today.
+      formData.set(
+        "timeZone",
+        Intl.DateTimeFormat().resolvedOptions().timeZone,
+      );
+      return saveName(prev, formData);
+    },
     undefined,
   );
 
@@ -18,7 +31,7 @@ export function OnboardingForm() {
           name="firstName"
           placeholder="First name"
           autoComplete="given-name"
-          defaultValue={state?.firstName}
+          defaultValue={state?.firstName ?? firstName}
           maxLength={50}
           required
           autoFocus
@@ -33,7 +46,7 @@ export function OnboardingForm() {
           name="lastName"
           placeholder="Last name"
           autoComplete="family-name"
-          defaultValue={state?.lastName}
+          defaultValue={state?.lastName ?? lastName}
           maxLength={50}
           required
           className="input input-lg w-full"
