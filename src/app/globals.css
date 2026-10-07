@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Only our two themes — none of daisyUI's built-ins. */
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* Hearth — warm linen, terracotta, sage. The default. */
+@plugin "daisyui/theme" {
+  name: "hearth";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  --color-base-100: #faf6f0;
+  --color-base-200: #f3ece2;
+  --color-base-300: #e8dfd2;
+  --color-base-content: #3d342c;
+
+  --color-primary: #b9775a;
+  --color-primary-content: #fffaf5;
+  --color-secondary: #8c9a7e;
+  --color-secondary-content: #fbfaf6;
+  --color-accent: #d4a373;
+  --color-accent-content: #3d2a1a;
+  --color-neutral: #4a4038;
+  --color-neutral-content: #f3ece2;
+
+  --color-info: #7d98a8;
+  --color-info-content: #f7fafb;
+  --color-success: #7f9a72;
+  --color-success-content: #f8faf6;
+  --color-warning: #d1a054;
+  --color-warning-content: #3a2a12;
+  --color-error: #b5615a;
+  --color-error-content: #fff7f5;
+
+  --radius-selector: 2rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+/* Dusk — the same palette after the lights go down. */
+@plugin "daisyui/theme" {
+  name: "dusk";
+  default: false;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: #1f1a17;
+  --color-base-200: #282220;
+  --color-base-300: #352d29;
+  --color-base-content: #ebe2d6;
+
+  --color-primary: #d08f72;
+  --color-primary-content: #24170f;
+  --color-secondary: #a3b195;
+  --color-secondary-content: #1c2117;
+  --color-accent: #ddb487;
+  --color-accent-content: #2b1d10;
+  --color-neutral: #3a322d;
+  --color-neutral-content: #ebe2d6;
+
+  --color-info: #93adbb;
+  --color-info-content: #141c21;
+  --color-success: #98b08b;
+  --color-success-content: #151c12;
+  --color-warning: #dcb26d;
+  --color-warning-content: #2a1e0b;
+  --color-error: #cf7d75;
+  --color-error-content: #241210;
+
+  --radius-selector: 2rem;
+  --radius-field: 0.75rem;
+  --radius-box: 1.25rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-fraunces);
+}

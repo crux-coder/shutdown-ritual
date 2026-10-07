@@ -1,0 +1,109 @@
+"use client";
+
+import Link from "next/link";
+import { useActionState } from "react";
+import type { AuthState } from "@/app/(auth)/actions";
+
+type Props = {
+  mode: "login" | "signup";
+  action: (state: AuthState, formData: FormData) => Promise<AuthState>;
+  initialError?: string;
+};
+
+const copy = {
+  login: {
+    title: "Welcome back",
+    subtitle: "Time to close the day gently.",
+    submit: "Sign in",
+    pending: "Signing in…",
+    switchText: "New here?",
+    switchLink: "Create an account",
+    switchHref: "/signup",
+    autoComplete: "current-password",
+  },
+  signup: {
+    title: "Begin your ritual",
+    subtitle: "A quiet way to end each workday.",
+    submit: "Create account",
+    pending: "Creating account…",
+    switchText: "Already have an account?",
+    switchLink: "Sign in",
+    switchHref: "/login",
+    autoComplete: "new-password",
+  },
+} as const;
+
+export function AuthForm({ mode, action, initialError }: Props) {
+  const [state, formAction, pending] = useActionState(
+    action,
+    initialError ? { error: initialError } : undefined,
+  );
+  const t = copy[mode];
+
+  return (
+    <div className="w-full max-w-sm">
+      <header className="mb-10 text-center">
+        <h1 className="font-serif text-4xl font-light tracking-tight">
+          {t.title}
+        </h1>
+        <p className="mt-3 text-base-content/60">{t.subtitle}</p>
+      </header>
+
+      {state?.message ? (
+        <div role="status" className="alert alert-soft alert-success">
+          <span>{state.message}</span>
+        </div>
+      ) : (
+        <form action={formAction} className="flex flex-col gap-4">
+          <label className="floating-label">
+            <span>Email</span>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              autoComplete="email"
+              defaultValue={state?.email}
+              required
+              className="input input-lg w-full"
+            />
+          </label>
+
+          <label className="floating-label">
+            <span>Password</span>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              autoComplete={t.autoComplete}
+              minLength={mode === "signup" ? 8 : undefined}
+              required
+              className="input input-lg w-full"
+            />
+          </label>
+
+          {state?.error && (
+            <p role="alert" className="text-sm text-error">
+              {state.error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={pending}
+            className="btn btn-primary btn-lg mt-2"
+          >
+            {pending && <span className="loading loading-spinner loading-sm" />}
+            {pending ? t.pending : t.submit}
+          </button>
+        </form>
+      )}
+
+      <p className="mt-8 text-center text-sm text-base-content/60">
+        {t.switchText}{" "}
+        <Link href={t.switchHref} className="link link-primary link-hover">
+          {t.switchLink}
+        </Link>
+      </p>
+    </div>
+  );
+}
