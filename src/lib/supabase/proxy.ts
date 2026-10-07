@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_ROUTES = ["/login", "/signup"];
 const PUBLIC_PREFIXES = ["/auth"];
+const ONBOARDING_ROUTE = "/onboarding";
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -31,7 +32,9 @@ export async function updateSession(request: NextRequest) {
   // Don't run code between createServerClient and getClaims — it refreshes
   // the session token and keeps the user signed in.
   const { data } = await supabase.auth.getClaims();
-  const isSignedIn = Boolean(data?.claims);
+  const claims = data?.claims;
+  const isSignedIn = Boolean(claims);
+  const isOnboarded = Boolean(claims?.user_metadata?.first_name);
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
@@ -43,6 +46,16 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isSignedIn && isAuthRoute) {
+    return redirectTo(request, response, "/");
+  }
+
+  const isOnboarding = pathname === ONBOARDING_ROUTE;
+
+  if (isSignedIn && !isOnboarded && !isPublic && !isOnboarding) {
+    return redirectTo(request, response, ONBOARDING_ROUTE);
+  }
+
+  if (isSignedIn && isOnboarded && isOnboarding) {
     return redirectTo(request, response, "/");
   }
 

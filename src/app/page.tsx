@@ -9,11 +9,16 @@ export default function Home() {
         <span className="font-serif text-sm tracking-[0.3em] text-base-content/40 uppercase">
           Shutdown Ritual
         </span>
-        <form action={signOut}>
-          <button type="submit" className="btn btn-ghost btn-sm">
-            Sign out
-          </button>
-        </form>
+        <div className="flex items-center gap-2">
+          <Suspense>
+            <UserName />
+          </Suspense>
+          <form action={signOut}>
+            <button type="submit" className="btn btn-ghost btn-sm">
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
       <main className="flex flex-1 flex-col items-center justify-center px-6 pb-24 text-center">
@@ -29,10 +34,18 @@ export default function Home() {
   );
 }
 
+async function UserName() {
+  const user = await getCurrentUser();
+  return (
+    <span className="hidden text-sm text-base-content/60 sm:inline">
+      {user.firstName} {user.lastName}
+    </span>
+  );
+}
+
 async function UserGreeting() {
   const user = await getCurrentUser();
-  const name = user.email.split("@")[0];
-  return <Greeting name={name} />;
+  return <Greeting name={user.firstName} />;
 }
 
 function Greeting({ name }: { name?: string }) {
