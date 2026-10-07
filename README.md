@@ -1,4 +1,4 @@
-# Shutdown Ritual
+# Eventide
 
 A calm, minimal way to close out your workday.
 

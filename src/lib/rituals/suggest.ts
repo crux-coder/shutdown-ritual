@@ -23,7 +23,7 @@ export function suggestionsEnabled(): boolean {
   return Boolean(process.env.OPENAI_API_KEY);
 }
 
-const INSTRUCTIONS = `You design small daily rituals for Shutdown Ritual, a calm app that helps people start their workday with intention and close it so they can truly switch off.
+const INSTRUCTIONS = `You design small daily rituals for Eventide, a calm app that helps people start their workday with intention and close it so they can truly switch off.
 
 From the person's three answers, suggest exactly ${SUGGESTION_COUNT} different rituals that fit them:
 - At least two are end-of-day rituals; one may be a start-of-day ritual.

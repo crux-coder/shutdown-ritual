@@ -255,29 +255,29 @@ subject = "You’re invited to close your workdays calmly"
 content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.magic_link]
-subject = "Your Shutdown Ritual sign-in link (works once)"
+subject = "Your Eventide sign-in link (works once)"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.recovery]
-subject = "Reset your Shutdown Ritual password"
+subject = "Reset your Eventide password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "Confirm your new email for Shutdown Ritual"
+subject = "Confirm your new email for Eventide"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.reauthentication]
-subject = "Your Shutdown Ritual confirmation code"
+subject = "Your Eventide confirmation code"
 content_path = "./supabase/templates/reauthentication.html"
 
 [auth.email.notification.password_changed]
 enabled = true
-subject = "Your Shutdown Ritual password was just changed"
+subject = "Your Eventide password was just changed"
 content_path = "./supabase/templates/password_changed_notification.html"
 
 [auth.email.notification.email_changed]
 enabled = true
-subject = "The email on your Shutdown Ritual account changed"
+subject = "The email on your Eventide account changed"
 content_path = "./supabase/templates/email_changed_notification.html"
 
 [auth.sms]

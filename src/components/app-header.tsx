@@ -7,11 +7,8 @@ import { Logo } from "@/components/logo";
 export function AppHeader() {
   return (
     <header className="flex items-center justify-between gap-4 px-6 py-5 sm:px-10">
-      <Link href="/today" className="flex items-center gap-3">
+      <Link href="/today" aria-label="Today">
         <Logo className="size-7" />
-        <span className="hidden font-serif text-sm tracking-[0.3em] text-base-content/40 uppercase sm:inline">
-          Shutdown Ritual
-        </span>
       </Link>
       <form action={signOut}>
         <button

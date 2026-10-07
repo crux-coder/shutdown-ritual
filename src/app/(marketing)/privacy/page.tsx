@@ -5,7 +5,7 @@ import { SiteFooter, SiteHeader } from "../site-chrome";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What Shutdown Ritual stores, why, who else sees it, and how to remove it.",
+    "What Eventide stores, why, who else sees it, and how to remove it.",
 };
 
 // A plain-language account of the data the app keeps. Keep it in step with
@@ -22,8 +22,8 @@ export default function PrivacyPage() {
           How we handle your data
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-base-content/65">
-          Shutdown Ritual is a small app. We keep only what it needs to work, we
-          don’t sell your data, and there are no ads, analytics or trackers.
+          Eventide is a small app. We keep only what it needs to work, we don’t
+          sell your data, and there are no ads, analytics or trackers.
         </p>
         <p className="mt-3 text-sm text-base-content/45">
           Last updated 7 October 2026

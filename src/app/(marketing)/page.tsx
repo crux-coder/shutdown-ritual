@@ -17,7 +17,7 @@ import { RITUAL_TEMPLATES, TEMPLATE_AUDIENCES } from "@/lib/rituals/templates";
 import { SiteFooter, SiteHeader } from "./site-chrome";
 
 export const metadata: Metadata = {
-  title: { absolute: "Shutdown Ritual · End your workday on purpose" },
+  title: { absolute: "Eventide · End your workday on purpose" },
   description:
     "Small rituals to start your workday with intention and close it properly, so the evening is yours.",
 };
@@ -52,7 +52,7 @@ function Hero() {
           End your workday on purpose.
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-relaxed text-base-content/65">
-          Shutdown Ritual turns the last few minutes of your day into a small,
+          Eventide turns the last few minutes of your day into a small,
           repeatable routine. Close every loop, say your shutdown phrase, and
           let the evening be yours.
         </p>

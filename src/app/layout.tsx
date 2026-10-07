@@ -15,8 +15,8 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Shutdown Ritual",
-    template: "%s · Shutdown Ritual",
+    default: "Eventide",
+    template: "%s · Eventide",
   },
   description: "A calm, intentional way to close out your workday.",
 };

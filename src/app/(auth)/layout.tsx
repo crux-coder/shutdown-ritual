@@ -8,11 +8,8 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <main className="grid min-h-dvh flex-1 grid-rows-[auto_auto_1fr_auto] justify-items-center px-6">
       <header className="row-start-1 pt-8">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" aria-label="Home">
           <Logo className="size-7" />
-          <p className="font-serif text-xs tracking-[0.3em] text-base-content/40 uppercase">
-            Shutdown Ritual
-          </p>
         </Link>
       </header>
       {children}
