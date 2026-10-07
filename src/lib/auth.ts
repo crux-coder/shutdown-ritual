@@ -14,6 +14,11 @@ export type Profile = {
   // Local wall-clock times, "HH:MM".
   dayStartsAt: string;
   dayEndsAt: string;
+  // Local dates ("YYYY-MM-DD") the user last started or ended their day
+  // early, and last shut down for the day.
+  dayStartedEarlyOn: string | null;
+  dayEndedEarlyOn: string | null;
+  dayShutDownOn: string | null;
   onboardingStep: OnboardingStep;
 };
 
@@ -43,7 +48,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "first_name, last_name, time_zone, day_starts_at, day_ends_at, onboarding_step",
+      "first_name, last_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, onboarding_step",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -62,6 +67,9 @@ export const getProfile = cache(async (): Promise<Profile> => {
     // Postgres returns "HH:MM:SS".
     dayStartsAt: data?.day_starts_at?.slice(0, 5) ?? DEFAULT_DAY_STARTS_AT,
     dayEndsAt: data?.day_ends_at?.slice(0, 5) ?? DEFAULT_DAY_ENDS_AT,
+    dayStartedEarlyOn: data?.day_started_early_on ?? null,
+    dayEndedEarlyOn: data?.day_ended_early_on ?? null,
+    dayShutDownOn: data?.day_shut_down_on ?? null,
     onboardingStep: data?.onboarding_step ?? "name",
   };
 });
