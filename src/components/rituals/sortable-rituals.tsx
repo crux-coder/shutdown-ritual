@@ -21,6 +21,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { DragDropVerticalIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useId, useOptimistic, useTransition } from "react";
+import { IntegrationIcon } from "@/components/integration-icon";
 import { reorderRituals } from "@/lib/rituals/actions";
 import {
   RITUAL_INTEGRATIONS,
@@ -128,10 +129,18 @@ function RitualCard({ ritual }: { ritual: Ritual }) {
             {ritual.description}
           </p>
         )}
+        {ritual.steps.length > 0 && (
+          <ol className="mt-2 flex list-inside list-decimal flex-col gap-0.5 text-sm text-base-content/60 marker:text-base-content/30">
+            {ritual.steps.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ol>
+        )}
         {integrations.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {integrations.map((i) => (
-              <span key={i.id} className="badge badge-sm badge-outline">
+              <span key={i.id} className="badge badge-sm badge-outline gap-1">
+                <IntegrationIcon integration={i.id} className="size-3" />
                 {i.label}
               </span>
             ))}

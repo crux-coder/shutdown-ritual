@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { AuthState } from "@/app/(auth)/actions";
+import { TextField } from "@/components/text-field";
 
 type Props = {
   mode: "login" | "signup";
@@ -55,31 +56,22 @@ export function AuthForm({ mode, action, initialError }: Props) {
         </div>
       ) : (
         <form action={formAction} className="flex flex-col gap-4">
-          <label className="floating-label">
-            <span>Email</span>
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              autoComplete="email"
-              defaultValue={state?.email}
-              required
-              className="input input-lg w-full"
-            />
-          </label>
-
-          <label className="floating-label">
-            <span>Password</span>
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              autoComplete={t.autoComplete}
-              minLength={mode === "signup" ? 8 : undefined}
-              required
-              className="input input-lg w-full"
-            />
-          </label>
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            autoComplete="email"
+            defaultValue={state?.email}
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            autoComplete={t.autoComplete}
+            minLength={mode === "signup" ? 8 : undefined}
+            required
+          />
 
           {state?.error && (
             <p role="alert" className="text-sm text-error">

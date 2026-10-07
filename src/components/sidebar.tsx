@@ -34,7 +34,12 @@ export function Sidebar() {
           <Link
             key={href}
             href={href}
-            aria-current={href === pathname ? "page" : undefined}
+            aria-current={
+              href === pathname ||
+              (href !== "/" && pathname.startsWith(`${href}/`))
+                ? "page"
+                : undefined
+            }
             className="btn flex-nowrap justify-start gap-3 border-0 bg-transparent px-3 font-normal whitespace-nowrap text-base-content/60 shadow-none hover:bg-base-200 hover:text-base-content aria-[current=page]:bg-base-200 aria-[current=page]:text-base-content"
           >
             <Icon />

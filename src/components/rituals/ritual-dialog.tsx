@@ -18,7 +18,11 @@ import {
 import { toFormValues } from "@/lib/rituals/form";
 import type { Ritual } from "@/lib/rituals/options";
 import { RitualFields } from "./ritual-fields";
-import { TemplatePicker, useRitualTemplate } from "./template-picker";
+import {
+  TemplateOrigin,
+  TemplatePicker,
+  useRitualTemplate,
+} from "./template-picker";
 
 export function NewRitualButton() {
   return (
@@ -155,6 +159,20 @@ function RitualForm({
   const error =
     deleteError ?? (state?.status === "error" ? state.error : undefined);
 
+  // A new ritual starts from a template list; the form comes after a pick.
+  if (!ritual && template.browsing) {
+    return (
+      <div className="mt-6 flex flex-col gap-6">
+        <TemplatePicker picked={template.picked} onPick={template.pick} />
+        <div className="modal-action mt-0">
+          <button type="button" onClick={onDone} className="btn btn-ghost">
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form
       action={formAction}
@@ -164,7 +182,7 @@ function RitualForm({
       {ritual ? (
         <input type="hidden" name="id" value={ritual.id} />
       ) : (
-        <TemplatePicker picked={template.picked} onPick={template.pick} />
+        <TemplateOrigin picked={template.picked} onBrowse={template.browse} />
       )}
 
       <RitualFields key={template.fieldsKey} values={template.values} />

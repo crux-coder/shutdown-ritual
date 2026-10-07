@@ -4,7 +4,8 @@ import { today } from "@/lib/dates";
 import { createClient } from "@/lib/supabase/server";
 import type { Ritual } from "./options";
 
-const RITUAL_COLUMNS = "id, title, description, moment, days, integrations";
+const RITUAL_COLUMNS =
+  "id, title, description, steps, moment, days, integrations";
 
 // RLS scopes this to the signed-in user.
 export async function getRituals(): Promise<Ritual[]> {
@@ -22,16 +23,20 @@ export async function getRituals(): Promise<Ritual[]> {
   return data as Ritual[];
 }
 
-export type TodaysRitual = Ritual & { completed: boolean };
+export type TodaysRitual = Ritual & {
+  completed: boolean;
+  // Indexes into `steps` ticked off today.
+  checkedSteps: number[];
+};
 
-// The rituals scheduled for today in the user's time zone, and whether each
-// one is already done.
+// The rituals scheduled for today in the user's time zone, whether each one is
+// already done, and how far through its steps it is.
 export async function getTodaysRituals(): Promise<TodaysRitual[]> {
   const user = await getCurrentUser();
   const { date, weekday } = today(user.timeZone);
 
   const supabase = await createClient();
-  const [rituals, completions] = await Promise.all([
+  const [rituals, completions, checks] = await Promise.all([
     supabase
       .from("rituals")
       .select(RITUAL_COLUMNS)
@@ -42,6 +47,10 @@ export async function getTodaysRituals(): Promise<TodaysRitual[]> {
       .from("ritual_completions")
       .select("ritual_id")
       .eq("completed_on", date),
+    supabase
+      .from("ritual_step_checks")
+      .select("ritual_id, step")
+      .eq("checked_on", date),
   ]);
 
   if (rituals.error) {
@@ -50,10 +59,16 @@ export async function getTodaysRituals(): Promise<TodaysRitual[]> {
   if (completions.error) {
     throw new Error(`Failed to load completions: ${completions.error.message}`);
   }
+  if (checks.error) {
+    throw new Error(`Failed to load step checks: ${checks.error.message}`);
+  }
 
   const done = new Set(completions.data.map((c) => c.ritual_id));
   return (rituals.data as Ritual[]).map((r) => ({
     ...r,
     completed: done.has(r.id),
+    checkedSteps: checks.data
+      .filter((c) => c.ritual_id === r.id && c.step < r.steps.length)
+      .map((c) => c.step),
   }));
 }

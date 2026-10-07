@@ -3,8 +3,22 @@
 
 import type { RitualFormValues } from "./form";
 
+// Who a template is for, in the order the picker offers them.
+export const TEMPLATE_AUDIENCES = [
+  { id: "anyone", label: "Anyone" },
+  { id: "engineers", label: "Engineers" },
+  { id: "designers", label: "Designers" },
+  { id: "managers", label: "Managers" },
+  { id: "writers", label: "Writers" },
+  { id: "freelancers", label: "Freelancers" },
+  { id: "students", label: "Students" },
+] as const;
+
+export type TemplateAudience = (typeof TEMPLATE_AUDIENCES)[number]["id"];
+
 export type RitualTemplate = {
   id: string;
+  audience: TemplateAudience;
   // A few words on what it's for, shown under the name.
   summary: string;
   values: RitualFormValues;
@@ -12,53 +26,242 @@ export type RitualTemplate = {
 
 const WEEKDAYS_ONLY: RitualFormValues["days"] = [1, 2, 3, 4, 5];
 
-export const RITUAL_TEMPLATES: RitualTemplate[] = [
-  {
-    id: "newport-shutdown",
-    summary: "Close every loop, then say it out loud",
+// Templates lead with their steps, so they start without a description.
+function template(
+  id: string,
+  audience: TemplateAudience,
+  summary: string,
+  values: Omit<RitualFormValues, "description" | "days" | "integrations"> &
+    Partial<Pick<RitualFormValues, "days" | "integrations">>,
+): RitualTemplate {
+  return {
+    id,
+    audience,
+    summary,
     values: {
-      title: "Cal Newport shutdown",
-      description:
-        "Check email and messages one last time for anything urgent. Capture every open task somewhere you trust. Look over tomorrow’s calendar and rough out a plan. Then say your shutdown phrase, and stop thinking about work.",
-      moment: "end_of_day",
-      days: WEEKDAYS_ONLY,
-      integrations: ["gmail"],
-    },
-  },
-  {
-    id: "engineer-end-of-day",
-    summary: "Leave the code easy to pick back up",
-    values: {
-      title: "Engineer’s end of day",
-      description:
-        "Push your work in progress to a branch. Leave a note on where you stopped and what’s next. Answer review requests, and move your tickets to where they really are.",
-      moment: "end_of_day",
-      days: WEEKDAYS_ONLY,
-      integrations: ["github", "linear"],
-    },
-  },
-  {
-    id: "morning-plan",
-    summary: "Decide what today is for",
-    values: {
-      title: "Plan the day",
-      description:
-        "Look over today’s calendar. Pick the one thing that matters most, and block time for it before anything else gets in.",
-      moment: "start_of_day",
+      description: "",
       days: WEEKDAYS_ONLY,
       integrations: [],
+      ...values,
     },
-  },
-  {
-    id: "weekly-review",
-    summary: "Look back on Friday, set up next week",
-    values: {
-      title: "Weekly review",
-      description:
-        "Look back at what got done and what slipped. Empty your inboxes and lists. Choose the few things that matter next week.",
+  };
+}
+
+export const RITUAL_TEMPLATES: RitualTemplate[] = [
+  // Anyone
+  template("plan-the-day", "anyone", "Decide what today is for", {
+    title: "Plan the day",
+    moment: "start_of_day",
+    integrations: ["google_calendar"],
+    steps: [
+      "Look over today’s calendar",
+      "Pick the one thing that matters most",
+      "Block time for it before anything else gets in",
+    ],
+  }),
+  template(
+    "newport-shutdown",
+    "anyone",
+    "Close every loop, then say it out loud",
+    {
+      title: "Cal Newport shutdown",
       moment: "end_of_day",
-      days: [5],
-      integrations: ["notion"],
+      integrations: ["gmail", "todoist", "google_calendar"],
+      steps: [
+        "Check email and messages for anything urgent",
+        "Capture every open task somewhere you trust",
+        "Look over tomorrow’s calendar and rough out a plan",
+      ],
     },
-  },
+  ),
+  template("leave-the-desk", "anyone", "A clear line between work and home", {
+    title: "Leave the desk",
+    moment: "end_of_day",
+    steps: [
+      "Close every app and tab you won’t need tomorrow",
+      "Clear your desk",
+      "Turn off work notifications on your phone",
+      "Step outside, or change clothes, to mark the end",
+    ],
+  }),
+  template("weekly-review", "anyone", "Look back on Friday, set up next week", {
+    title: "Weekly review",
+    moment: "end_of_day",
+    days: [5],
+    integrations: ["todoist", "google_calendar"],
+    steps: [
+      "Look back at what got done and what slipped",
+      "Empty your inboxes and lists",
+      "Choose the few things that matter next week",
+    ],
+  }),
+
+  // Engineers
+  template("engineer-morning", "engineers", "Unblock others, then go deep", {
+    title: "Engineer’s morning",
+    moment: "start_of_day",
+    integrations: ["github"],
+    steps: [
+      "Read yesterday’s note on where you stopped",
+      "Check CI and any overnight alerts",
+      "Review the pull requests waiting on you",
+      "Pick today’s main task and close everything else",
+    ],
+  }),
+  template(
+    "engineer-end-of-day",
+    "engineers",
+    "Leave the code easy to pick back up",
+    {
+      title: "Engineer’s end of day",
+      moment: "end_of_day",
+      integrations: ["github"],
+      steps: [
+        "Push your work in progress to a branch",
+        "Leave a note on where you stopped and what’s next",
+        "Answer review requests",
+        "Move your tickets to where they really are",
+      ],
+    },
+  ),
+
+  // Designers
+  template(
+    "creative-warm-up",
+    "designers",
+    "Get your eye in before the tools",
+    {
+      title: "Creative warm-up",
+      moment: "start_of_day",
+      steps: [
+        "Spend ten minutes on work you find inspiring",
+        "Re-read the brief for what you’re working on",
+        "Sketch on paper before opening your tools",
+      ],
+    },
+  ),
+  template(
+    "design-wrap-up",
+    "designers",
+    "Keep the work and the feedback findable",
+    {
+      title: "Design wrap-up",
+      moment: "end_of_day",
+      integrations: ["todoist"],
+      steps: [
+        "Name and tidy today’s files and frames",
+        "Share work in progress where the team can see it",
+        "Write down feedback to act on and questions to ask",
+        "Note where to start tomorrow",
+      ],
+    },
+  ),
+
+  // Managers
+  template(
+    "team-check-in",
+    "managers",
+    "See where the team is before your day",
+    {
+      title: "Team check-in",
+      moment: "start_of_day",
+      integrations: ["google_calendar"],
+      steps: [
+        "Read standup updates and team channels",
+        "Unblock anyone who’s stuck, first",
+        "Pick the one thing only you can move forward today",
+      ],
+    },
+  ),
+  template("managers-close", "managers", "Nobody waits on you overnight", {
+    title: "Manager’s close",
+    moment: "end_of_day",
+    integrations: ["gmail", "google_calendar"],
+    steps: [
+      "Reply to anything blocking your team",
+      "Make sure today’s decisions are written down and shared",
+      "Note anything to raise in upcoming one-on-ones",
+      "Look over tomorrow’s meetings and what each one needs",
+    ],
+  }),
+
+  // Writers
+  template("morning-pages", "writers", "Empty your head onto the page", {
+    title: "Morning pages",
+    moment: "start_of_day",
+    days: [1, 2, 3, 4, 5, 6, 7],
+    steps: [
+      "Write three pages by hand, about anything",
+      "Don’t reread or edit them",
+      "Circle one idea worth coming back to",
+    ],
+  }),
+  template(
+    "writing-wrap-up",
+    "writers",
+    "Stop where tomorrow is easy to start",
+    {
+      title: "Writing wrap-up",
+      moment: "end_of_day",
+      steps: [
+        "Stop mid-sentence, or mid-thought",
+        "Note today’s progress",
+        "Write a line on what the next section needs",
+        "Back up today’s work",
+      ],
+    },
+  ),
+
+  // Freelancers
+  template(
+    "freelancer-close",
+    "freelancers",
+    "Hours logged, clients up to date",
+    {
+      title: "Freelancer’s close",
+      moment: "end_of_day",
+      integrations: ["gmail", "todoist"],
+      steps: [
+        "Log today’s hours against each client",
+        "Send the updates you promised",
+        "Note anything to invoice",
+        "Plan tomorrow around the nearest deadlines",
+      ],
+    },
+  ),
+  template("weekly-admin", "freelancers", "Get paid, keep work coming in", {
+    title: "Weekly admin",
+    moment: "end_of_day",
+    days: [5],
+    integrations: ["gmail"],
+    steps: [
+      "Send invoices for finished work",
+      "Follow up on anything unpaid",
+      "Update your list of leads and proposals",
+      "Back up client files",
+    ],
+  }),
+
+  // Students
+  template("study-plan", "students", "Know what you’re studying, and when", {
+    title: "Study plan",
+    moment: "start_of_day",
+    integrations: ["google_calendar"],
+    steps: [
+      "Check today’s classes and deadlines",
+      "Choose what to study, and for how long",
+      "Put your phone in another room",
+    ],
+  }),
+  template("study-wrap-up", "students", "Make today’s learning stick", {
+    title: "Study wrap-up",
+    moment: "end_of_day",
+    integrations: ["todoist"],
+    steps: [
+      "Spend five minutes recalling what you learned today",
+      "Write down questions to ask",
+      "Check what’s due this week",
+      "Pack your bag for tomorrow",
+    ],
+  }),
 ];

@@ -116,6 +116,14 @@ export async function createFirstRitual(
   redirect("/");
 }
 
+// Rituals can wait: the user lands on an empty today view that points them
+// to the Rituals page.
+export async function skipFirstRitual() {
+  const profile = await getProfile();
+  await setStep(profile.id, nextStep("first_ritual"));
+  redirect("/");
+}
+
 export async function goBack(step: OnboardingStep) {
   const profile = await getProfile();
   await setStep(profile.id, previousStep(step));

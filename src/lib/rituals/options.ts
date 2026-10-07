@@ -16,11 +16,17 @@ export const RITUAL_MOMENTS = [
 
 export type RitualMoment = (typeof RITUAL_MOMENTS)[number]["id"];
 
+// Linear and Notion are still in the enum but no longer offered: they're
+// dropped from a ritual the next time it's saved.
 export const RITUAL_INTEGRATIONS = [
   { id: "gmail", label: "Gmail", hint: "Unanswered threads, sent mail" },
+  {
+    id: "google_calendar",
+    label: "Google Calendar",
+    hint: "Today’s and tomorrow’s events",
+  },
+  { id: "todoist", label: "Todoist", hint: "Tasks due and done today" },
   { id: "github", label: "GitHub", hint: "PRs, reviews, commits" },
-  { id: "linear", label: "Linear", hint: "Issues you moved today" },
-  { id: "notion", label: "Notion", hint: "Pages you edited" },
 ] as const;
 
 export type RitualIntegration = (typeof RITUAL_INTEGRATIONS)[number]["id"];
@@ -40,11 +46,16 @@ export type Weekday = (typeof WEEKDAYS)[number]["id"];
 
 export const MAX_TITLE_LENGTH = 100;
 export const MAX_DESCRIPTION_LENGTH = 500;
+// Keep in sync with ritual_steps_are_valid in supabase/migrations/*_add_ritual_steps.sql.
+export const MAX_STEPS = 10;
+export const MAX_STEP_LENGTH = 100;
 
 export type Ritual = {
   id: string;
   title: string;
   description: string | null;
+  // In order; empty for a ritual that is ticked off whole.
+  steps: string[];
   moment: RitualMoment;
   days: Weekday[];
   integrations: RitualIntegration[];

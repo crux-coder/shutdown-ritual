@@ -3,6 +3,8 @@
 
 import {
   MAX_DESCRIPTION_LENGTH,
+  MAX_STEP_LENGTH,
+  MAX_STEPS,
   MAX_TITLE_LENGTH,
   RITUAL_INTEGRATIONS,
   RITUAL_MOMENTS,
@@ -16,6 +18,7 @@ import {
 export type RitualFormValues = {
   title: string;
   description: string;
+  steps: string[];
   moment: RitualMoment;
   days: Weekday[];
   integrations: RitualIntegration[];
@@ -24,6 +27,7 @@ export type RitualFormValues = {
 export const DEFAULT_RITUAL_VALUES: RitualFormValues = {
   title: "",
   description: "",
+  steps: [],
   moment: "end_of_day",
   days: [1, 2, 3, 4, 5],
   integrations: [],
@@ -34,6 +38,7 @@ export function toFormValues(ritual?: Ritual): RitualFormValues {
   return {
     title: ritual.title,
     description: ritual.description ?? "",
+    steps: ritual.steps,
     moment: ritual.moment,
     days: ritual.days,
     integrations: ritual.integrations,
@@ -49,6 +54,11 @@ export function readRitualValues(formData: FormData): RitualFormValues {
   return {
     title: String(formData.get("title") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
+    // Blank steps are left out rather than refused.
+    steps: formData
+      .getAll("steps")
+      .map((s) => String(s).trim())
+      .filter(Boolean),
     moment: (MOMENT_IDS.has(moment) ? moment : "end_of_day") as RitualMoment,
     days: [...new Set(formData.getAll("days").map(Number))]
       .filter((d) => WEEKDAY_IDS.has(d))
@@ -66,6 +76,10 @@ export function validateRitual(values: RitualFormValues): string | undefined {
     return `Names can be up to ${MAX_TITLE_LENGTH} characters.`;
   if (values.description.length > MAX_DESCRIPTION_LENGTH)
     return `Descriptions can be up to ${MAX_DESCRIPTION_LENGTH} characters.`;
+  if (values.steps.length > MAX_STEPS)
+    return `A ritual can have up to ${MAX_STEPS} steps.`;
+  if (values.steps.some((s) => s.length > MAX_STEP_LENGTH))
+    return `Steps can be up to ${MAX_STEP_LENGTH} characters.`;
   if (values.days.length === 0) return "Pick at least one day.";
 }
 
@@ -73,6 +87,7 @@ export function toRitualRow(values: RitualFormValues) {
   return {
     title: values.title,
     description: values.description || null,
+    steps: values.steps,
     moment: values.moment,
     days: values.days,
     integrations: values.integrations,

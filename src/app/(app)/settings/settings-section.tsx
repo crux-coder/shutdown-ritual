@@ -22,6 +22,10 @@ export function SettingsSection({
   );
 }
 
+export function SettingsSkeleton() {
+  return <div aria-hidden className="skeleton h-64 w-full" />;
+}
+
 // The result of the last save, next to the button that made it.
 export function SaveStatus({ state }: { state: SettingsState }) {
   return (

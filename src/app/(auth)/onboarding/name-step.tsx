@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { TextField } from "@/components/text-field";
 import { saveName, type NameStepState } from "./actions";
 
 export function NameStep({
@@ -24,34 +25,23 @@ export function NameStep({
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
-      <label className="floating-label">
-        <span>First name</span>
-        <input
-          type="text"
-          name="firstName"
-          placeholder="First name"
-          autoComplete="given-name"
-          defaultValue={state?.firstName ?? firstName}
-          maxLength={50}
-          required
-          autoFocus
-          className="input input-lg w-full"
-        />
-      </label>
-
-      <label className="floating-label">
-        <span>Last name</span>
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Last name"
-          autoComplete="family-name"
-          defaultValue={state?.lastName ?? lastName}
-          maxLength={50}
-          required
-          className="input input-lg w-full"
-        />
-      </label>
+      <TextField
+        label="First name"
+        name="firstName"
+        autoComplete="given-name"
+        defaultValue={state?.firstName ?? firstName}
+        maxLength={50}
+        required
+        autoFocus
+      />
+      <TextField
+        label="Last name"
+        name="lastName"
+        autoComplete="family-name"
+        defaultValue={state?.lastName ?? lastName}
+        maxLength={50}
+        required
+      />
 
       {state?.error && (
         <p role="alert" className="text-sm text-error">

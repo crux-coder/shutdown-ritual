@@ -101,26 +101,113 @@ export async function setRitualCompleted(
   const { date } = today(user.timeZone);
 
   const supabase = await createClient();
-  const { error } = completed
-    ? await supabase
-        .from("ritual_completions")
-        .upsert(
-          { ritual_id: ritualId, user_id: user.id, completed_on: date },
-          { ignoreDuplicates: true },
-        )
-    : await supabase
+  if (completed) {
+    const { error } = await completeRitual(supabase, ritualId, user.id, date);
+    if (error) {
+      return { error: error.message };
+    }
+  } else {
+    // Undoing a ritual starts its steps over too, so they never all show
+    // ticked on a ritual that isn't done.
+    const [completion, checks] = await Promise.all([
+      supabase
         .from("ritual_completions")
         .delete()
         .eq("ritual_id", ritualId)
         .eq("user_id", user.id)
-        .eq("completed_on", date);
-
-  if (error) {
-    return { error: error.message };
+        .eq("completed_on", date),
+      supabase
+        .from("ritual_step_checks")
+        .delete()
+        .eq("ritual_id", ritualId)
+        .eq("user_id", user.id)
+        .eq("checked_on", date),
+    ]);
+    const error = completion.error ?? checks.error;
+    if (error) {
+      return { error: error.message };
+    }
   }
 
   refresh();
   return {};
+}
+
+// Ticks one of a ritual's steps on or off for today. Ticking the last open
+// step completes the ritual.
+export async function setStepChecked(
+  ritualId: string,
+  step: number,
+  checked: boolean,
+): Promise<{ error?: string }> {
+  const user = await getCurrentUser();
+  const { date } = today(user.timeZone);
+
+  const supabase = await createClient();
+  if (!checked) {
+    const { error } = await supabase
+      .from("ritual_step_checks")
+      .delete()
+      .eq("ritual_id", ritualId)
+      .eq("user_id", user.id)
+      .eq("checked_on", date)
+      .eq("step", step);
+    if (error) {
+      return { error: error.message };
+    }
+    refresh();
+    return {};
+  }
+
+  const { error: checkError } = await supabase
+    .from("ritual_step_checks")
+    .upsert(
+      { ritual_id: ritualId, user_id: user.id, checked_on: date, step },
+      { ignoreDuplicates: true },
+    );
+  if (checkError) {
+    return { error: checkError.message };
+  }
+
+  const [ritual, checks] = await Promise.all([
+    supabase.from("rituals").select("steps").eq("id", ritualId).single(),
+    supabase
+      .from("ritual_step_checks")
+      .select("step")
+      .eq("ritual_id", ritualId)
+      .eq("checked_on", date),
+  ]);
+  if (ritual.error) {
+    return { error: ritual.error.message };
+  }
+  if (checks.error) {
+    return { error: checks.error.message };
+  }
+
+  const ticked = new Set(checks.data.map((c) => c.step));
+  if ((ritual.data.steps as string[]).every((_, i) => ticked.has(i))) {
+    const { error } = await completeRitual(supabase, ritualId, user.id, date);
+    if (error) {
+      return { error: error.message };
+    }
+  }
+
+  refresh();
+  return {};
+}
+
+function completeRitual(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ritualId: string,
+  userId: string,
+  date: string,
+) {
+  return supabase
+    .from("ritual_completions")
+    .upsert(
+      { ritual_id: ritualId, user_id: userId, completed_on: date },
+      { ignoreDuplicates: true },
+    );
 }
 
 // Saves the order the user dragged their rituals into.

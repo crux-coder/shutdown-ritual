@@ -6,37 +6,34 @@ import {
   WEEKDAYS,
 } from "@/lib/rituals/options";
 import type { RitualFormValues } from "@/lib/rituals/form";
+import { IntegrationIcon } from "@/components/integration-icon";
+import { TextAreaField, TextField } from "@/components/text-field";
+import { StepsField } from "./steps-field";
 
 // The inputs of a ritual form, read by readRitualValues on the server.
 export function RitualFields({ values }: { values: RitualFormValues }) {
   return (
     <>
-      <fieldset className="fieldset gap-3">
-        <label className="floating-label">
-          <span>Name</span>
-          <input
-            type="text"
-            name="title"
-            placeholder="Name, e.g. Friday wrap-up"
-            defaultValue={values.title}
-            maxLength={MAX_TITLE_LENGTH}
-            required
-            autoFocus
-            className="input w-full"
-          />
-        </label>
-        <label className="floating-label">
-          <span>Description (optional)</span>
-          <textarea
-            name="description"
-            placeholder="Description (optional)"
-            defaultValue={values.description}
-            maxLength={MAX_DESCRIPTION_LENGTH}
-            rows={2}
-            className="textarea w-full"
-          />
-        </label>
-      </fieldset>
+      <div className="flex flex-col gap-4">
+        <TextField
+          label="Name"
+          name="title"
+          placeholder="e.g. Friday wrap-up"
+          defaultValue={values.title}
+          maxLength={MAX_TITLE_LENGTH}
+          required
+          autoFocus
+        />
+        <TextAreaField
+          label="Description (optional)"
+          name="description"
+          defaultValue={values.description}
+          maxLength={MAX_DESCRIPTION_LENGTH}
+          rows={2}
+        />
+      </div>
+
+      <StepsField initial={values.steps} />
 
       <fieldset className="fieldset">
         <legend className="fieldset-legend">When</legend>
@@ -100,8 +97,14 @@ export function RitualFields({ values }: { values: RitualFormValues }) {
                 defaultChecked={values.integrations.includes(integration.id)}
                 className="checkbox checkbox-sm checkbox-primary mt-0.5"
               />
-              <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium">{integration.label}</span>
+              <span className="flex min-w-0 flex-col gap-0.5">
+                <span className="flex items-center gap-1.5 text-sm font-medium">
+                  <IntegrationIcon
+                    integration={integration.id}
+                    className="size-4 shrink-0 text-base-content/80"
+                  />
+                  {integration.label}
+                </span>
                 <span className="text-xs text-base-content/60">
                   {integration.hint}
                 </span>

@@ -3,11 +3,12 @@
 import { useActionState } from "react";
 import { RitualFields } from "@/components/rituals/ritual-fields";
 import {
+  TemplateOrigin,
   TemplatePicker,
   useRitualTemplate,
 } from "@/components/rituals/template-picker";
 import { DEFAULT_RITUAL_VALUES } from "@/lib/rituals/form";
-import { createFirstRitual } from "./actions";
+import { createFirstRitual, skipFirstRitual } from "./actions";
 
 export function RitualStep({
   backAction,
@@ -26,9 +27,14 @@ export function RitualStep({
       onSubmit={template.submitted}
       className="flex flex-col gap-6"
     >
-      <TemplatePicker picked={template.picked} onPick={template.pick} />
-
-      <RitualFields key={template.fieldsKey} values={template.values} />
+      {template.browsing ? (
+        <TemplatePicker picked={template.picked} onPick={template.pick} />
+      ) : (
+        <>
+          <TemplateOrigin picked={template.picked} onBrowse={template.browse} />
+          <RitualFields key={template.fieldsKey} values={template.values} />
+        </>
+      )}
 
       {state?.error && (
         <p role="alert" className="text-sm text-error">
@@ -46,14 +52,29 @@ export function RitualStep({
         >
           Back
         </button>
-        <button
-          type="submit"
-          disabled={pending}
-          className="btn btn-primary btn-lg"
-        >
-          {pending && <span className="loading loading-spinner loading-sm" />}
-          {pending ? "Creating…" : "Create ritual"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="submit"
+            formAction={skipFirstRitual}
+            formNoValidate
+            disabled={pending}
+            className="btn btn-ghost"
+          >
+            Skip for now
+          </button>
+          {!template.browsing && (
+            <button
+              type="submit"
+              disabled={pending}
+              className="btn btn-primary btn-lg"
+            >
+              {pending && (
+                <span className="loading loading-spinner loading-sm" />
+              )}
+              {pending ? "Creating…" : "Create ritual"}
+            </button>
+          )}
+        </div>
       </div>
     </form>
   );
