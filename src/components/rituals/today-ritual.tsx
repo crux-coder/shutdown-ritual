@@ -5,18 +5,23 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useOptimistic, useTransition } from "react";
 import { setRitualCompleted } from "@/lib/rituals/actions";
 import type { TodaysRitual } from "@/lib/rituals/queries";
+import { playSound, type SoundId } from "@/lib/sounds";
 
 export function TodayRitual({
   ritual,
   delayMs,
+  finishSound = "none",
 }: {
   ritual: TodaysRitual;
   delayMs: number;
+  // Played when checking this one off finishes the list.
+  finishSound?: SoundId;
 }) {
   const [completed, setCompleted] = useOptimistic(ritual.completed);
   const [, startTransition] = useTransition();
 
   function toggle() {
+    if (!completed) playSound(finishSound);
     startTransition(async () => {
       setCompleted(!completed);
       await setRitualCompleted(ritual.id, !completed);

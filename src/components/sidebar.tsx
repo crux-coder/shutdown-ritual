@@ -3,6 +3,7 @@
 import {
   Moon02Icon,
   Plant03Icon,
+  Settings01Icon,
   Sun03Icon,
   SunriseIcon,
   SunsetIcon,
@@ -15,6 +16,7 @@ import type { Daypart } from "@/lib/daypart";
 const NAV = [
   { href: "/", label: "Today", icon: TodayIcon },
   { href: "/rituals", label: "Rituals", icon: RitualsIcon },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
 
 // A small floating panel, vertically centered on the left. It rests as an
@@ -75,6 +77,17 @@ function RitualsIcon() {
     <HugeiconsIcon
       aria-hidden
       icon={Plant03Icon}
+      strokeWidth={2}
+      className="size-4 shrink-0"
+    />
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <HugeiconsIcon
+      aria-hidden
+      icon={Settings01Icon}
       strokeWidth={2}
       className="size-4 shrink-0"
     />

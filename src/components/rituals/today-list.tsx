@@ -4,13 +4,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { today } from "@/lib/dates";
 import { minutesUntilNextPhase, todayPhase } from "@/lib/day-hours";
 import { WEEKDAYS, type Weekday } from "@/lib/rituals/options";
-import { DEFAULT_SHUTDOWN_SOUND } from "@/lib/sounds";
 import {
   getRituals,
   getTodaysRituals,
   type TodaysRitual,
 } from "@/lib/rituals/queries";
+import type { SoundId } from "@/lib/sounds";
 import { DayPrompt, RefreshIn, ShutDownView } from "./day-prompt";
+import { ShutdownFlow } from "./shutdown-flow";
 import { TodayRitual } from "./today-ritual";
 
 // Each item rises in a beat after the one before it.
@@ -68,7 +69,10 @@ export async function TodayList() {
         <DayPrompt moment="start" />
       ) : phase === "start" ? (
         <div className="flex flex-col gap-6">
-          <RitualList rituals={startRituals} />
+          <RitualList
+            rituals={startRituals}
+            finishSound={user.startSound}
+          />
           {/* Morning done: the end of the day can be opened early from here. */}
           {startRituals.every((r) => r.completed) && (
             <EndPrompt hasRituals={endRituals.length > 0} />
@@ -80,10 +84,10 @@ export async function TodayList() {
         <div className="flex flex-col gap-6">
           <RitualList rituals={endRituals} />
           {endRituals.every((r) => r.completed) && (
-            <DayPrompt
-              moment="shutdown"
+            <ShutdownFlow
+              phrase={user.shutdownPhrase}
+              sound={user.shutdownSound}
               delayMs={400}
-              sound={DEFAULT_SHUTDOWN_SOUND}
             />
           )}
         </div>
@@ -94,7 +98,16 @@ export async function TodayList() {
   );
 }
 
-function RitualList({ rituals }: { rituals: TodaysRitual[] }) {
+function RitualList({
+  rituals,
+  finishSound,
+}: {
+  rituals: TodaysRitual[];
+  // Played as the last open ritual is checked off.
+  finishSound?: SoundId;
+}) {
+  const open = rituals.filter((r) => !r.completed);
+
   return (
     <ul className="flex flex-col gap-3">
       {rituals.map((ritual, index) => (
@@ -102,6 +115,9 @@ function RitualList({ rituals }: { rituals: TodaysRitual[] }) {
           key={ritual.id}
           ritual={ritual}
           delayMs={index * STAGGER_MS + STAGGER_MS / 2}
+          finishSound={
+            open.length === 1 && open[0] === ritual ? finishSound : "none"
+          }
         />
       ))}
     </ul>

@@ -3,8 +3,8 @@
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/auth";
 import { isValidTimeZone } from "@/lib/dates";
-import { isValidTime, toMinutes } from "@/lib/day-hours";
 import { nextStep, previousStep, type OnboardingStep } from "@/lib/onboarding";
+import { validateDayHours, validateName } from "@/lib/profile";
 import {
   readRitualValues,
   toRitualRow,
@@ -22,8 +22,6 @@ export type DayHoursStepState =
 export type RitualStepState =
   { error: string; values: RitualFormValues } | undefined;
 
-const MAX_NAME_LENGTH = 50;
-
 export async function saveName(
   _prev: NameStepState,
   formData: FormData,
@@ -33,19 +31,9 @@ export async function saveName(
   const lastName = String(formData.get("lastName") ?? "").trim();
   const timeZone = String(formData.get("timeZone") ?? "");
 
-  if (!firstName || !lastName) {
-    return {
-      error: "Please enter your first and last name.",
-      firstName,
-      lastName,
-    };
-  }
-  if (firstName.length > MAX_NAME_LENGTH || lastName.length > MAX_NAME_LENGTH) {
-    return {
-      error: `Names can be up to ${MAX_NAME_LENGTH} characters.`,
-      firstName,
-      lastName,
-    };
+  const nameError = validateName(firstName, lastName);
+  if (nameError) {
+    return { error: nameError, firstName, lastName };
   }
 
   // Upsert in case the profile row is missing; the signup trigger normally
@@ -74,15 +62,9 @@ export async function saveDayHours(
   const dayStartsAt = String(formData.get("dayStartsAt") ?? "");
   const dayEndsAt = String(formData.get("dayEndsAt") ?? "");
 
-  if (!isValidTime(dayStartsAt) || !isValidTime(dayEndsAt)) {
-    return { error: "Please pick both times.", dayStartsAt, dayEndsAt };
-  }
-  if (toMinutes(dayEndsAt) <= toMinutes(dayStartsAt)) {
-    return {
-      error: "Your day should end after it starts.",
-      dayStartsAt,
-      dayEndsAt,
-    };
+  const hoursError = validateDayHours(dayStartsAt, dayEndsAt);
+  if (hoursError) {
+    return { error: hoursError, dayStartsAt, dayEndsAt };
   }
 
   const supabase = await createClient();

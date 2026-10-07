@@ -1,18 +1,26 @@
 // Sounds the app can play, synthesized in the browser — no audio files.
-// Each one has an id, so a user's choice can later be stored as a plain
-// string (e.g. a profile column) and passed back in to playSound().
+// Each one has an id, stored as the user's choice in profiles.start_sound and
+// profiles.shutdown_sound (keep their check constraints in sync) and passed
+// back in to playSound().
 
 export const SOUNDS = [
+  { id: "dawn", label: "Dawn" },
   { id: "dusk", label: "Dusk" },
   { id: "none", label: "No sound" },
 ] as const;
 
 export type SoundId = (typeof SOUNDS)[number]["id"];
 
-// Until it's configurable, everyone hears this on shutdown.
+export function isSoundId(value: string): value is SoundId {
+  return SOUNDS.some((s) => s.id === value);
+}
+
+// Match the profiles.start_sound and shutdown_sound column defaults.
+export const DEFAULT_START_SOUND: SoundId = "dawn";
 export const DEFAULT_SHUTDOWN_SOUND: SoundId = "dusk";
 
 const PLAYERS: Record<SoundId, (ctx: AudioContext) => void> = {
+  dawn: playDawn,
   dusk: playDusk,
   none: () => {},
 };
@@ -68,6 +76,53 @@ function playDusk(ctx: AudioContext) {
 
       const voice = ctx.createGain();
       voice.gain.value = level;
+      osc.connect(voice).connect(filter);
+      osc.start(start);
+      osc.stop(end + 0.05);
+    }
+  });
+}
+
+// Dusk turned around: a bright chord that rises in note by note and opens up,
+// like light coming in, for the morning rituals being done.
+const DAWN_SECONDS = 2.2;
+const DAWN_NOTE_GAP = 0.12;
+
+function playDawn(ctx: AudioContext) {
+  const start = ctx.currentTime + 0.02;
+  const end = start + DAWN_SECONDS;
+
+  const out = ctx.createGain();
+  out.gain.setValueAtTime(0.0001, start);
+  out.gain.exponentialRampToValueAtTime(0.12, start + 0.5);
+  out.gain.setValueAtTime(0.12, start + 1.0);
+  out.gain.exponentialRampToValueAtTime(0.0001, end);
+  out.connect(ctx.destination);
+
+  // Brightness opens up as the notes arrive: the "brightening".
+  const filter = ctx.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.Q.value = 0.5;
+  filter.frequency.setValueAtTime(500, start);
+  filter.frequency.exponentialRampToValueAtTime(2600, start + 1.2);
+  filter.connect(out);
+
+  // A G chord (G3, D4, G4, B4, D5), each note entering a beat after the one
+  // below it, quieter as it goes up.
+  const notes = [196.0, 293.66, 392.0, 493.88, 587.33];
+  notes.forEach((frequency, i) => {
+    const onset = start + i * DAWN_NOTE_GAP;
+    const level = 0.45 / (i + 1);
+    for (const cents of [-4, 4]) {
+      const osc = ctx.createOscillator();
+      osc.type = i === 0 ? "sine" : "triangle";
+      osc.frequency.value = frequency;
+      osc.detune.value = cents;
+
+      const voice = ctx.createGain();
+      voice.gain.setValueAtTime(0.0001, start);
+      voice.gain.setValueAtTime(0.0001, onset);
+      voice.gain.exponentialRampToValueAtTime(level, onset + 0.15);
       osc.connect(voice).connect(filter);
       osc.start(start);
       osc.stop(end + 0.05);
