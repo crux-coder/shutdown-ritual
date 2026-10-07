@@ -1,32 +1,11 @@
-// Sounds the app can play: some synthesized in the browser, some audio files
-// in public/sounds (labelled with their file names). Each one has an id,
-// stored as the user's choice in profiles.start_sound and
+// Sounds the app can play, synthesized in the browser — no audio files.
+// Each one has an id, stored as the user's choice in profiles.start_sound and
 // profiles.shutdown_sound (keep their check constraints in sync) and passed
 // back in to playSound().
-
-const FILE_SOUNDS = {
-  "windows-xp-startup": "Windows XP Startup.mp3",
-  "windows-xp-shutdown": "Windows XP Shutdown.mp3",
-} as const;
-
-type FileSoundId = keyof typeof FILE_SOUNDS;
-
-// "Windows XP Startup.mp3" → "Windows XP Startup"
-function fileLabel(file: string) {
-  return file.replace(/\.[^.]+$/, "");
-}
 
 export const SOUNDS = [
   { id: "dawn", label: "Dawn" },
   { id: "dusk", label: "Dusk" },
-  {
-    id: "windows-xp-startup",
-    label: fileLabel(FILE_SOUNDS["windows-xp-startup"]),
-  },
-  {
-    id: "windows-xp-shutdown",
-    label: fileLabel(FILE_SOUNDS["windows-xp-shutdown"]),
-  },
   { id: "none", label: "No sound" },
 ] as const;
 
@@ -40,20 +19,11 @@ export function isSoundId(value: string): value is SoundId {
 export const DEFAULT_START_SOUND: SoundId = "dawn";
 export const DEFAULT_SHUTDOWN_SOUND: SoundId = "dusk";
 
-const PLAYERS: Record<
-  Exclude<SoundId, FileSoundId>,
-  (ctx: AudioContext) => void
-> = {
+const PLAYERS: Record<SoundId, (ctx: AudioContext) => void> = {
   dawn: playDawn,
   dusk: playDusk,
   none: () => {},
 };
-
-function isFileSound(id: SoundId): id is FileSoundId {
-  return id in FILE_SOUNDS;
-}
-
-const FILE_VOLUME = 0.6;
 
 let context: AudioContext | null = null;
 
@@ -61,13 +31,6 @@ let context: AudioContext | null = null;
 export function playSound(id: SoundId): void {
   if (id === "none" || typeof window === "undefined") return;
   try {
-    if (isFileSound(id)) {
-      const audio = new Audio(`/sounds/${encodeURIComponent(FILE_SOUNDS[id])}`);
-      audio.volume = FILE_VOLUME;
-      // Rejects if the browser blocks playback; nothing to do about it here.
-      void audio.play().catch(() => {});
-      return;
-    }
     context ??= new AudioContext();
     void context.resume();
     PLAYERS[id](context);
