@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getCurrentUser } from "@/lib/auth";
+import { DeleteAccountForm } from "./delete-account-form";
 import { NameForm } from "./name-form";
 import { PasswordForm } from "./password-form";
 import { SettingsSection, SettingsSkeleton } from "./settings-section";
@@ -25,6 +26,12 @@ async function ProfileSettings() {
       </SettingsSection>
       <SettingsSection title="Password" description="At least 8 characters.">
         <PasswordForm />
+      </SettingsSection>
+      <SettingsSection
+        title="Delete account"
+        description="Remove your account and everything in it."
+      >
+        <DeleteAccountForm />
       </SettingsSection>
     </div>
   );

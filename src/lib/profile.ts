@@ -64,3 +64,6 @@ export function normalizePhrase(value: string): string {
     .replace(/[^\p{L}\p{N}]+/gu, " ")
     .trim();
 }
+
+// What the user types to confirm deleting their account.
+export const DELETE_CONFIRMATION = "delete";

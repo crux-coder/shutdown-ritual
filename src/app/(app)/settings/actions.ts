@@ -1,8 +1,10 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import {
+  DELETE_CONFIRMATION,
   isShutdownMode,
   validateDayHours,
   validateName,
@@ -135,6 +137,33 @@ export async function changePassword(
   if (error) return { status: "error", error: error.message };
 
   return { status: "saved" };
+}
+
+export type DeleteAccountState = { error: string } | undefined;
+
+// Deletes the user's account and everything in it, then signs them out.
+export async function deleteAccount(
+  _prev: DeleteAccountState,
+  formData: FormData,
+): Promise<DeleteAccountState> {
+  const typed = String(formData.get("confirmation") ?? "")
+    .trim()
+    .toLowerCase();
+  if (typed !== DELETE_CONFIRMATION) {
+    return { error: `Type “${DELETE_CONFIRMATION}” to confirm.` };
+  }
+
+  await getCurrentUser();
+  const supabase = await createClient();
+
+  const { error } = await supabase.rpc("delete_my_account");
+  if (error) {
+    return { error: `Couldn’t delete your account: ${error.message}` };
+  }
+
+  // The user no longer exists, so only the local session needs clearing.
+  await supabase.auth.signOut({ scope: "local" });
+  redirect("/");
 }
 
 async function updateProfile(

@@ -103,8 +103,9 @@ export default function PrivacyPage() {
             <p>
               You can clear your note at any time by emptying it or putting it
               away, delete any ritual from the Rituals page, and change your
-              name and settings in Settings. Deleting your whole account from
-              within the app isn’t available yet; it’s on the way.
+              name and settings in Settings. To remove everything, go to
+              Settings, then Profile, and choose Delete account: your account
+              and all its data are deleted straight away and can’t be recovered.
             </p>
           </Part>
         </div>
