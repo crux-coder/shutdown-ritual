@@ -15,9 +15,9 @@ export async function TodayList() {
     getCurrentUser(),
     getTodaysRituals(),
   ]);
-  const doneCount = rituals.filter((r) => r.completed).length;
 
-  // What's up next comes first; the rest of the day waits quietly below.
+  // What's up next comes first; the rest of the day waits quietly below,
+  // dimmed, with no labels to read.
   const now = currentMoment(
     today(user.timeZone).minutes,
     user.dayStartsAt,
@@ -64,19 +64,7 @@ export async function TodayList() {
                   : "opacity-60 transition-opacity duration-300 hover:opacity-100 focus-within:opacity-100"
               }
             >
-              <h3
-                className="mb-3 text-xs font-medium tracking-[0.2em] text-base-content/50 uppercase motion-safe:animate-rise"
-                style={{ animationDelay: `${rituals[0].index * STAGGER_MS}ms` }}
-              >
-                {moment.label}
-                {!isCurrent && (
-                  <span className="font-normal tracking-normal normal-case">
-                    {" · "}
-                    {moment.id === "start_of_day" ? "earlier" : "later"}
-                  </span>
-                )}
-              </h3>
-              <ul className="flex flex-col gap-2">
+              <ul className="flex flex-col gap-3">
                 {rituals.map(({ ritual, index }) => (
                   <TodayRitual
                     key={ritual.id}
@@ -87,15 +75,6 @@ export async function TodayList() {
               </ul>
             </section>
           ))}
-
-          <p
-            className="text-center text-sm text-base-content/50 motion-safe:animate-rise"
-            style={{ animationDelay: `${(index + 1) * STAGGER_MS}ms` }}
-          >
-            {doneCount === rituals.length
-              ? "All done. Rest well."
-              : `${doneCount} of ${rituals.length} done`}
-          </p>
         </div>
       )}
     </>
@@ -104,9 +83,9 @@ export async function TodayList() {
 
 export function TodayListSkeleton() {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="skeleton h-18 w-full" />
-      <div className="skeleton h-18 w-full" />
+    <div className="flex flex-col gap-3">
+      <div className="skeleton h-22 w-full" />
+      <div className="skeleton h-22 w-full" />
     </div>
   );
 }

@@ -12,7 +12,8 @@ export async function getRituals(): Promise<Ritual[]> {
   const { data, error } = await supabase
     .from("rituals")
     .select(RITUAL_COLUMNS)
-    .order("created_at", { ascending: true });
+    .order("position")
+    .order("created_at");
 
   if (error) {
     throw new Error(`Failed to load rituals: ${error.message}`);
@@ -35,7 +36,8 @@ export async function getTodaysRituals(): Promise<TodaysRitual[]> {
       .from("rituals")
       .select(RITUAL_COLUMNS)
       .contains("days", [weekday])
-      .order("created_at", { ascending: true }),
+      .order("position")
+      .order("created_at"),
     supabase
       .from("ritual_completions")
       .select("ritual_id")

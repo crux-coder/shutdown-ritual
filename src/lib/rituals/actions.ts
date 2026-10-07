@@ -122,3 +122,20 @@ export async function setRitualCompleted(
   refresh();
   return {};
 }
+
+// Saves the order the user dragged their rituals into.
+export async function reorderRituals(
+  ids: string[],
+): Promise<{ error?: string }> {
+  await getCurrentUser();
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reorder_rituals", { ids });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  refresh();
+  return {};
+}
