@@ -7,13 +7,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
-import {
-  useEffect,
-  useState,
-  useTransition,
-  type ButtonHTMLAttributes,
-  type ReactNode,
-} from "react";
+import { useEffect, useState, useTransition, type ReactNode } from "react";
 import { endDayEarly, reopenDay, startDayEarly } from "@/lib/profile-actions";
 
 const PROMPTS = {
@@ -115,36 +109,6 @@ export function NightScreen({
     >
       {children}
     </div>
-  );
-}
-
-// A quiet outlined button for the night screen.
-export function NightButton({
-  icon,
-  delayMs,
-  className = "",
-  ...button
-}: {
-  icon?: IconSvgElement;
-  delayMs: number;
-} & ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button
-      type="button"
-      {...button}
-      className={`btn gap-2 rounded-full border-[#ece4d8]/15 bg-transparent px-6 font-normal text-[#ece4d8]/50 shadow-none hover:border-[#ece4d8]/30 hover:bg-[#ece4d8]/5 hover:text-[#ece4d8] motion-safe:animate-rise ${className}`}
-      style={{ animationDelay: `${delayMs}ms` }}
-    >
-      {icon && (
-        <HugeiconsIcon
-          aria-hidden
-          icon={icon}
-          strokeWidth={1.75}
-          className="size-4"
-        />
-      )}
-      {button.children}
-    </button>
   );
 }
 

@@ -27,7 +27,20 @@ const PLAYERS: Record<SoundId, (ctx: AudioContext) => void> = {
 
 let context: AudioContext | null = null;
 
-// Must be called from a user gesture (a click), or browsers keep it muted.
+// Lets a sound play later, away from a user gesture (say, when a hold
+// finishes on a timer): call it from the gesture that starts things off.
+export function unlockSound(): void {
+  if (typeof window === "undefined") return;
+  try {
+    context ??= new AudioContext();
+    void context.resume();
+  } catch {
+    // Sound is a nicety; never let it break the action it accompanies.
+  }
+}
+
+// Must be called from a user gesture (a click), or after unlockSound() was,
+// or browsers keep it muted.
 export function playSound(id: SoundId): void {
   if (id === "none" || typeof window === "undefined") return;
   try {

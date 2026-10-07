@@ -15,11 +15,11 @@ import {
   type ShutdownMode,
 } from "@/lib/profile";
 import { saveHandoffNote, shutDownDay } from "@/lib/profile-actions";
-import { playSound, type SoundId } from "@/lib/sounds";
+import { playSound, unlockSound, type SoundId } from "@/lib/sounds";
+import { HoldButton } from "@/components/hold-button";
 import {
   keepNightShowing,
   LEAVE_MS,
-  NightButton,
   NightScreen,
   PromptButton,
 } from "./day-prompt";
@@ -112,6 +112,9 @@ function ShutdownScreen({
   const target = normalizePhrase(phrase);
   const progress = normalizePhrase(typed);
   const offTrack = progress !== "" && !target.startsWith(progress);
+  // In phrase mode, the button waits for the phrase.
+  const ready = mode === "button" || progress === target;
+  const holdRef = useRef<HTMLButtonElement>(null);
 
   // Saves the note if it changed since the last save.
   async function saveNote(value: string) {
@@ -129,8 +132,10 @@ function ShutdownScreen({
 
   // Called from a click or keystroke, which counts as the user gesture the
   // sound needs. The night stays up while the shut-down view takes over.
+  // Runs when the hold completes. Its sound was unlocked as the hold began,
+  // since a timer finishing isn't a gesture the browser lets play audio.
   function finish() {
-    if (pending) return;
+    if (pending || !ready) return;
     playSound(sound);
     keepNightShowing();
     startTransition(async () => {
@@ -142,8 +147,11 @@ function ShutdownScreen({
   function type(value: string) {
     if (pending) return;
     setTyped(value);
-    // The last keystroke of the phrase closes the day.
-    if (normalizePhrase(value) === target) finish();
+    // The phrase unlocks the button rather than closing the day itself, so
+    // the ending stays a choice; focus moves there for the keyboard.
+    if (normalizePhrase(value) === target) {
+      requestAnimationFrame(() => holdRef.current?.focus());
+    }
   }
 
   // "Not yet": keep the note, fade the night away, then go back.
@@ -198,60 +206,75 @@ function ShutdownScreen({
           />
         </label>
 
-        <div
-          className="flex w-full flex-col items-center gap-6 motion-safe:animate-rise"
-          style={{ animationDelay: "900ms" }}
-        >
-          {mode === "phrase" ? (
-            <>
-              <div>
-                <p className="text-sm tracking-[0.2em] uppercase opacity-40">
-                  Say it, then type it
-                </p>
-                <p className="mt-4 font-serif text-3xl font-light tracking-tight text-balance sm:text-4xl">
-                  &ldquo;{phrase}&rdquo;
-                </p>
-              </div>
-              <label className="flex w-full flex-col gap-3">
-                <span className="sr-only">Type your shutdown phrase</span>
-                <input
-                  type="text"
-                  value={typed}
-                  onChange={(e) => type(e.target.value)}
-                  readOnly={pending}
-                  aria-describedby="shutdown-phrase-hint"
-                  autoFocus
-                  autoComplete="off"
-                  autoCapitalize="off"
-                  spellCheck={false}
-                  className="h-14 w-full border-b border-[#ece4d8]/20 bg-transparent px-2 text-center text-xl text-[#ece4d8] caret-[#ece4d8]/60 transition-colors duration-300 focus:border-[#ece4d8]/50 focus:outline-none"
-                />
-                {/* A gentle nudge, not a correction: no red, no "wrong". */}
-                <span
-                  id="shutdown-phrase-hint"
-                  aria-live="polite"
-                  className="min-h-5 text-sm opacity-40"
-                >
-                  {offTrack ? "Just the words above, in your own time." : ""}
-                </span>
-              </label>
-            </>
-          ) : (
-            <button
-              type="button"
-              onClick={finish}
-              disabled={pending}
-              autoFocus
-              className="btn btn-lg h-16 rounded-full border-0 bg-[#ece4d8] px-10 font-normal text-[#1b1418] hover:bg-[#ece4d8]/90"
-            >
-              I’m done for today
-            </button>
-          )}
-        </div>
+        {mode === "phrase" && (
+          <div
+            className="flex w-full flex-col items-center gap-6 motion-safe:animate-rise"
+            style={{ animationDelay: "900ms" }}
+          >
+            <div>
+              <p className="text-sm tracking-[0.2em] uppercase opacity-40">
+                Say it, then type it
+              </p>
+              <p className="mt-4 font-serif text-3xl font-light tracking-tight text-balance sm:text-4xl">
+                &ldquo;{phrase}&rdquo;
+              </p>
+            </div>
+            <label className="flex w-full flex-col gap-3">
+              <span className="sr-only">Type your shutdown phrase</span>
+              <input
+                type="text"
+                value={typed}
+                onChange={(e) => type(e.target.value)}
+                readOnly={pending}
+                aria-describedby="shutdown-phrase-hint"
+                autoFocus
+                autoComplete="off"
+                autoCapitalize="off"
+                spellCheck={false}
+                className="h-14 w-full border-b border-[#ece4d8]/20 bg-transparent px-2 text-center text-xl text-[#ece4d8] caret-[#ece4d8]/60 transition-colors duration-300 focus:border-[#ece4d8]/50 focus:outline-none"
+              />
+              {/* A gentle nudge, not a correction: no red, no "wrong". */}
+              <span
+                id="shutdown-phrase-hint"
+                aria-live="polite"
+                className="min-h-5 text-sm opacity-40"
+              >
+                {offTrack ? "Just the words above, in your own time." : ""}
+              </span>
+            </label>
+          </div>
+        )}
 
-        <NightButton delayMs={1300} disabled={pending} onClick={close}>
-          Not yet
-        </NightButton>
+        {/* The main way out of the screen, with "Not yet" quietly below. */}
+        <div
+          className="flex flex-col items-center gap-4 motion-safe:animate-rise"
+          style={{ animationDelay: "1100ms" }}
+        >
+          <HoldButton
+            ref={holdRef}
+            onHoldStart={unlockSound}
+            onComplete={finish}
+            disabled={pending || !ready}
+            className="btn btn-lg h-16 gap-3 rounded-full border border-[#ece4d8]/35 bg-[#ece4d8]/10 px-10 font-normal text-[#ece4d8] shadow-none hover:border-[#ece4d8]/60 hover:bg-[#ece4d8]/15 disabled:border-[#ece4d8]/10 disabled:bg-transparent disabled:text-[#ece4d8]/30"
+            fillClassName="bg-[#ece4d8]/30"
+          >
+            <HugeiconsIcon
+              aria-hidden
+              icon={ShutDownIcon}
+              strokeWidth={1.75}
+              className="size-5"
+            />
+            Hold to shut down
+          </HoldButton>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={close}
+            className="cursor-pointer px-3 py-2 text-sm text-[#ece4d8]/40 underline-offset-4 transition-colors hover:text-[#ece4d8]/70 hover:underline focus-visible:outline-2 focus-visible:outline-[#ece4d8]/50 disabled:pointer-events-none"
+          >
+            Not yet
+          </button>
+        </div>
       </div>
     </NightScreen>
   );
