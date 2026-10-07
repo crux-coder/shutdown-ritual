@@ -247,37 +247,37 @@ otp_expiry = 3600
 # Branded emails, matching the app. The hosted project doesn't read these:
 # paste each one into Authentication → Emails in the dashboard as well.
 [auth.email.template.confirmation]
-subject = "Confirm your email"
+subject = "Confirm your email to start your first ritual"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.invite]
-subject = "You’re invited to Shutdown Ritual"
+subject = "You’re invited to close your workdays calmly"
 content_path = "./supabase/templates/invite.html"
 
 [auth.email.template.magic_link]
-subject = "Your sign-in link"
+subject = "Your Shutdown Ritual sign-in link (works once)"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.recovery]
-subject = "Reset your password"
+subject = "Reset your Shutdown Ritual password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "Confirm your new email"
+subject = "Confirm your new email for Shutdown Ritual"
 content_path = "./supabase/templates/email_change.html"
 
 [auth.email.template.reauthentication]
-subject = "Your confirmation code"
+subject = "Your Shutdown Ritual confirmation code"
 content_path = "./supabase/templates/reauthentication.html"
 
 [auth.email.notification.password_changed]
 enabled = true
-subject = "Your password was changed"
+subject = "Your Shutdown Ritual password was just changed"
 content_path = "./supabase/templates/password_changed_notification.html"
 
 [auth.email.notification.email_changed]
 enabled = true
-subject = "Your email was changed"
+subject = "The email on your Shutdown Ritual account changed"
 content_path = "./supabase/templates/email_changed_notification.html"
 
 [auth.sms]
