@@ -1,9 +1,8 @@
 "use client";
 
-import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
-import type { RitualFormValues } from "@/lib/rituals/form";
 import { RITUAL_MOMENTS } from "@/lib/rituals/options";
 import {
   RITUAL_TEMPLATES,
@@ -12,49 +11,12 @@ import {
   type TemplateAudience,
 } from "@/lib/rituals/templates";
 
-// A new ritual starts with choosing a starting point, a template or a blank
-// form, and then shows the form for it. Tracks that choice and what the form
-// should show: the chosen starting point until the next submit, then what was
-// submitted (so an error keeps the user's edits), else `fallback`.
-export function useRitualTemplate(
-  submitted: RitualFormValues | undefined,
-  fallback: RitualFormValues,
-) {
-  const [picked, setPicked] = useState<RitualTemplate | null>(null);
-  const [fresh, setFresh] = useState(false);
-  const [browsing, setBrowsing] = useState(true);
-
-  return {
-    picked,
-    browsing,
-    values: fresh ? (picked?.values ?? fallback) : (submitted ?? fallback),
-    // RitualFields read their values once, so a new pick remounts them.
-    fieldsKey: fresh ? (picked?.id ?? "blank") : "submitted",
-    // A template, or null to start from a blank form.
-    pick(template: RitualTemplate | null) {
-      setPicked(template);
-      setFresh(true);
-      setBrowsing(false);
-    },
-    browse() {
-      setBrowsing(true);
-    },
-    // For the form's onSubmit.
-    submitted() {
-      setFresh(false);
-    },
-  };
-}
-
 export function TemplatePicker({
   picked,
   onPick,
-  offerBlank = true,
 }: {
   picked: RitualTemplate | null;
-  onPick: (template: RitualTemplate | null) => void;
-  // Whether to offer a blank form below the list.
-  offerBlank?: boolean;
+  onPick: (template: RitualTemplate) => void;
 }) {
   // Open on the picked template's audience, so it stays in view.
   const [audience, setAudience] = useState<TemplateAudience>(
@@ -114,55 +76,6 @@ export function TemplatePicker({
           </li>
         ))}
       </ul>
-
-      {offerBlank && (
-        <button
-          type="button"
-          onClick={() => onPick(null)}
-          className="btn btn-ghost btn-sm self-center text-base-content/70"
-        >
-          Or start from scratch
-        </button>
-      )}
-    </div>
-  );
-}
-
-// Above the form: where it started from, and a way back to choose again.
-export function TemplateOrigin({
-  title,
-  backLabel = "Templates",
-  onBack,
-}: {
-  // The template or suggestion it started from; null for a blank form.
-  title: string | null;
-  backLabel?: string;
-  onBack: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 rounded-box bg-base-200/50 py-1.5 pr-1.5 pl-4 text-sm">
-      <span className="min-w-0 truncate text-base-content/60">
-        {title ? (
-          <>
-            From <span className="font-medium text-base-content">{title}</span>
-          </>
-        ) : (
-          "Starting from scratch"
-        )}
-      </span>
-      <button
-        type="button"
-        onClick={onBack}
-        className="btn btn-ghost btn-xs shrink-0"
-      >
-        <HugeiconsIcon
-          aria-hidden
-          icon={ArrowLeft01Icon}
-          strokeWidth={2}
-          className="size-3.5"
-        />
-        {backLabel}
-      </button>
     </div>
   );
 }

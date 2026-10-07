@@ -1,9 +1,15 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, getProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { today } from "@/lib/dates";
+import {
+  MAX_ANSWER_LENGTH,
+  SUGGESTION_QUESTIONS,
+  type SuggestionAnswers,
+} from "./questions";
+import { suggestRituals, type RitualSuggestion } from "./suggest";
 import {
   readRitualValues,
   toRitualRow,
@@ -225,4 +231,34 @@ export async function reorderRituals(
 
   refresh();
   return {};
+}
+
+export type SuggestionsResult =
+  { suggestions: RitualSuggestion[] } | { error: string };
+
+// Rituals written for the user from their three answers. Open to anyone
+// signed in, onboarding or not.
+export async function getRitualSuggestions(
+  answers: SuggestionAnswers,
+): Promise<SuggestionsResult> {
+  await getProfile();
+
+  const cleaned = Object.fromEntries(
+    SUGGESTION_QUESTIONS.map((q) => [
+      q.id,
+      String(answers?.[q.id] ?? "")
+        .trim()
+        .slice(0, MAX_ANSWER_LENGTH),
+    ]),
+  ) as SuggestionAnswers;
+  if (Object.values(cleaned).some((a) => !a)) {
+    return { error: "Answer all three questions first." };
+  }
+
+  try {
+    return { suggestions: await suggestRituals(cleaned) };
+  } catch (error) {
+    console.error("Ritual suggestions failed:", error);
+    return { error: "We couldn’t come up with suggestions just now." };
+  }
 }

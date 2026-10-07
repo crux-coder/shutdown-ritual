@@ -104,6 +104,17 @@ export function AuthForm({ mode, action, initialError }: Props) {
           {t.switchLink}
         </Link>
       </p>
+      {/* For people who already have an account but can't get in. */}
+      {mode === "signup" && (
+        <p className="mt-2 text-center text-sm">
+          <Link
+            href="/forgot-password"
+            className="link link-hover text-base-content/50"
+          >
+            Forgot your password?
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

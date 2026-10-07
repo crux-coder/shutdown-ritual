@@ -17,16 +17,20 @@ import {
 } from "@/lib/rituals/actions";
 import { toFormValues } from "@/lib/rituals/form";
 import type { Ritual } from "@/lib/rituals/options";
+import { NewRitualScreen, useNewRitualFlow } from "./new-ritual-flow";
 import { RitualFields } from "./ritual-fields";
-import {
-  TemplateOrigin,
-  TemplatePicker,
-  useRitualTemplate,
-} from "./template-picker";
 
-export function NewRitualButton() {
+export function NewRitualButton({
+  suggestionsEnabled,
+}: {
+  // Whether OpenAI is set up; without it, AI isn't offered.
+  suggestionsEnabled: boolean;
+}) {
   return (
-    <RitualDialog triggerClassName="btn btn-primary">
+    <RitualDialog
+      triggerClassName="btn btn-primary"
+      suggestionsEnabled={suggestionsEnabled}
+    >
       <HugeiconsIcon
         aria-hidden
         icon={Add01Icon}
@@ -57,11 +61,13 @@ export function EditRitualButton({ ritual }: { ritual: Ritual }) {
 
 function RitualDialog({
   ritual,
+  suggestionsEnabled = false,
   triggerLabel,
   triggerClassName,
   children,
 }: {
   ritual?: Ritual;
+  suggestionsEnabled?: boolean;
   triggerLabel?: string;
   triggerClassName: string;
   children: ReactNode;
@@ -109,7 +115,15 @@ function RitualDialog({
               : "A small routine you come back to on the days that matter."}
           </p>
 
-          <RitualForm key={formKey} ritual={ritual} onDone={close} />
+          {ritual ? (
+            <EditRitualForm key={formKey} ritual={ritual} onDone={close} />
+          ) : (
+            <NewRitualForm
+              key={formKey}
+              suggestionsEnabled={suggestionsEnabled}
+              onDone={close}
+            />
+          )}
         </div>
         <form method="dialog" className="modal-backdrop">
           <button aria-label="Close">close</button>
@@ -119,17 +133,86 @@ function RitualDialog({
   );
 }
 
-function RitualForm({
+function NewRitualForm({
+  suggestionsEnabled,
+  onDone,
+}: {
+  suggestionsEnabled: boolean;
+  onDone: () => void;
+}) {
+  const [state, formAction, pending] = useActionState(
+    async (...args: Parameters<typeof createRitual>) => {
+      const result = await createRitual(...args);
+      if (result?.status === "success") onDone();
+      return result;
+    },
+    undefined,
+  );
+  const flow = useNewRitualFlow();
+  const { stage } = flow;
+
+  return (
+    <form
+      action={formAction}
+      onSubmit={flow.submitted}
+      className="mt-6 flex flex-col gap-6"
+    >
+      <NewRitualScreen
+        flow={flow}
+        suggestionsEnabled={suggestionsEnabled}
+        submitted={state?.status === "error" ? state.values : undefined}
+      />
+      {stage.kind === "form" && state?.status === "error" && (
+        <p role="alert" className="text-sm text-error">
+          {state.error}
+        </p>
+      )}
+
+      <div className="modal-action mt-0">
+        {stage.kind !== "choose" && (
+          <button
+            type="button"
+            onClick={flow.back}
+            disabled={pending}
+            className="btn btn-ghost mr-auto"
+          >
+            Back
+          </button>
+        )}
+        <button type="button" onClick={onDone} className="btn btn-ghost">
+          Cancel
+        </button>
+        {flow.question && (
+          <button
+            type="button"
+            onClick={flow.next}
+            disabled={!flow.answered}
+            className="btn btn-primary"
+          >
+            {flow.isLastQuestion ? "See rituals" : "Next"}
+          </button>
+        )}
+        {stage.kind === "form" && (
+          <button type="submit" disabled={pending} className="btn btn-primary">
+            {pending && <span className="loading loading-spinner loading-sm" />}
+            {pending ? "Creating…" : "Create ritual"}
+          </button>
+        )}
+      </div>
+    </form>
+  );
+}
+
+function EditRitualForm({
   ritual,
   onDone,
 }: {
-  ritual?: Ritual;
+  ritual: Ritual;
   onDone: () => void;
 }) {
-  const save = ritual ? updateRitual : createRitual;
   const [state, formAction, pending] = useActionState(
-    async (...args: Parameters<typeof save>) => {
-      const result = await save(...args);
+    async (...args: Parameters<typeof updateRitual>) => {
+      const result = await updateRitual(...args);
       if (result?.status === "success") onDone();
       return result;
     },
@@ -151,44 +234,16 @@ function RitualForm({
     });
   }
 
-  // Templates are offered for new rituals only.
-  const template = useRitualTemplate(
-    state?.status === "error" ? state.values : undefined,
-    toFormValues(ritual),
-  );
   const error =
     deleteError ?? (state?.status === "error" ? state.error : undefined);
 
-  // A new ritual starts from a template list; the form comes after a pick.
-  if (!ritual && template.browsing) {
-    return (
-      <div className="mt-6 flex flex-col gap-6">
-        <TemplatePicker picked={template.picked} onPick={template.pick} />
-        <div className="modal-action mt-0">
-          <button type="button" onClick={onDone} className="btn btn-ghost">
-            Cancel
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <form
-      action={formAction}
-      onSubmit={template.submitted}
-      className="mt-6 flex flex-col gap-6"
-    >
-      {ritual ? (
-        <input type="hidden" name="id" value={ritual.id} />
-      ) : (
-        <TemplateOrigin
-          title={template.picked?.values.title ?? null}
-          onBack={template.browse}
-        />
-      )}
+    <form action={formAction} className="mt-6 flex flex-col gap-6">
+      <input type="hidden" name="id" value={ritual.id} />
 
-      <RitualFields key={template.fieldsKey} values={template.values} />
+      <RitualFields
+        values={state?.status === "error" ? state.values : toFormValues(ritual)}
+      />
 
       {error && (
         <p role="alert" className="text-sm text-error">
@@ -196,7 +251,7 @@ function RitualForm({
         </p>
       )}
 
-      {ritual && confirmingDelete ? (
+      {confirmingDelete ? (
         <div className="modal-action mt-0 flex-wrap items-center justify-between">
           <p className="text-sm">Delete this ritual for good?</p>
           <div className="flex gap-2">
@@ -223,28 +278,20 @@ function RitualForm({
         </div>
       ) : (
         <div className="modal-action mt-0">
-          {ritual && (
-            <button
-              type="button"
-              onClick={() => setConfirmingDelete(true)}
-              disabled={pending}
-              className="btn btn-ghost mr-auto text-error"
-            >
-              Delete
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(true)}
+            disabled={pending}
+            className="btn btn-ghost mr-auto text-error"
+          >
+            Delete
+          </button>
           <button type="button" onClick={onDone} className="btn btn-ghost">
             Cancel
           </button>
           <button type="submit" disabled={pending} className="btn btn-primary">
             {pending && <span className="loading loading-spinner loading-sm" />}
-            {pending
-              ? ritual
-                ? "Saving…"
-                : "Creating…"
-              : ritual
-                ? "Save changes"
-                : "Create ritual"}
+            {pending ? "Saving…" : "Save changes"}
           </button>
         </div>
       )}

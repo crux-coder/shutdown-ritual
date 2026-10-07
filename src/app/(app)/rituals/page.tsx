@@ -5,6 +5,7 @@ import {
   RitualList,
   RitualListSkeleton,
 } from "@/components/rituals/ritual-list";
+import { suggestionsEnabled } from "@/lib/rituals/suggest";
 
 export const metadata: Metadata = { title: "Rituals" };
 
@@ -21,7 +22,7 @@ export default function RitualsPage() {
               Shape the routines that close your days.
             </p>
           </div>
-          <NewRitualButton />
+          <NewRitualButton suggestionsEnabled={suggestionsEnabled()} />
         </div>
         <Suspense fallback={<RitualListSkeleton />}>
           <RitualList />
