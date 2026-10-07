@@ -18,6 +18,7 @@ import {
 import { toFormValues } from "@/lib/rituals/form";
 import type { Ritual } from "@/lib/rituals/options";
 import { RitualFields } from "./ritual-fields";
+import { TemplatePicker, useRitualTemplate } from "./template-picker";
 
 export function NewRitualButton() {
   return (
@@ -146,16 +147,27 @@ function RitualForm({
     });
   }
 
-  const values =
-    state?.status === "error" ? state.values : toFormValues(ritual);
+  // Templates are offered for new rituals only.
+  const template = useRitualTemplate(
+    state?.status === "error" ? state.values : undefined,
+    toFormValues(ritual),
+  );
   const error =
     deleteError ?? (state?.status === "error" ? state.error : undefined);
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-6">
-      {ritual && <input type="hidden" name="id" value={ritual.id} />}
+    <form
+      action={formAction}
+      onSubmit={template.submitted}
+      className="mt-6 flex flex-col gap-6"
+    >
+      {ritual ? (
+        <input type="hidden" name="id" value={ritual.id} />
+      ) : (
+        <TemplatePicker picked={template.picked} onPick={template.pick} />
+      )}
 
-      <RitualFields values={values} />
+      <RitualFields key={template.fieldsKey} values={template.values} />
 
       {error && (
         <p role="alert" className="text-sm text-error">

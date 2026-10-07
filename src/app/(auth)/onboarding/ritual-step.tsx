@@ -2,6 +2,10 @@
 
 import { useActionState } from "react";
 import { RitualFields } from "@/components/rituals/ritual-fields";
+import {
+  TemplatePicker,
+  useRitualTemplate,
+} from "@/components/rituals/template-picker";
 import { DEFAULT_RITUAL_VALUES } from "@/lib/rituals/form";
 import { createFirstRitual } from "./actions";
 
@@ -14,10 +18,17 @@ export function RitualStep({
     createFirstRitual,
     undefined,
   );
+  const template = useRitualTemplate(state?.values, DEFAULT_RITUAL_VALUES);
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
-      <RitualFields values={state?.values ?? DEFAULT_RITUAL_VALUES} />
+    <form
+      action={formAction}
+      onSubmit={template.submitted}
+      className="flex flex-col gap-6"
+    >
+      <TemplatePicker picked={template.picked} onPick={template.pick} />
+
+      <RitualFields key={template.fieldsKey} values={template.values} />
 
       {state?.error && (
         <p role="alert" className="text-sm text-error">
