@@ -6,7 +6,7 @@ import { AuthMain } from "../frame";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default function LoginPage({ searchParams }: PageProps<"/login">) {
+export default function LoginPage({ searchParams }: PageProps<"/sign-in">) {
   return (
     <AuthMain>
       <Suspense fallback={<AuthForm mode="login" action={login} />}>
@@ -18,7 +18,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 
 async function LoginForm({
   searchParams,
-}: Pick<PageProps<"/login">, "searchParams">) {
+}: Pick<PageProps<"/sign-in">, "searchParams">) {
   const { error } = await searchParams;
   const initialError =
     error === "confirm"

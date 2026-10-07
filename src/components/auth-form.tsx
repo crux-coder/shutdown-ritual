@@ -19,7 +19,7 @@ const copy = {
     pending: "Signing in…",
     switchText: "New here?",
     switchLink: "Create an account",
-    switchHref: "/signup",
+    switchHref: "/sign-up",
     autoComplete: "current-password",
   },
   signup: {
@@ -29,7 +29,7 @@ const copy = {
     pending: "Creating account…",
     switchText: "Already have an account?",
     switchLink: "Sign in",
-    switchHref: "/login",
+    switchHref: "/sign-in",
     autoComplete: "new-password",
   },
 } as const;

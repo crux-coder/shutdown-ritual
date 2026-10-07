@@ -2,7 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicOrigin } from "@/lib/public-origin";
 
-const AUTH_ROUTES = ["/login", "/signup", "/forgot-password"];
+const AUTH_ROUTES = ["/sign-in", "/sign-up", "/forgot-password"];
+// The landing page: open to everyone, though signed-in users go on to the app.
+const LANDING = "/";
 const PUBLIC_PREFIXES = ["/auth"];
 
 export async function updateSession(request: NextRequest) {
@@ -37,15 +39,18 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
+  const isLanding = pathname === LANDING;
   const isPublic =
-    isAuthRoute || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
+    isLanding ||
+    isAuthRoute ||
+    PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 
   if (!isSignedIn && !isPublic) {
-    return redirectTo(request, response, "/login");
+    return redirectTo(request, response, "/sign-in");
   }
 
-  if (isSignedIn && isAuthRoute) {
-    return redirectTo(request, response, "/");
+  if (isSignedIn && (isAuthRoute || isLanding)) {
+    return redirectTo(request, response, "/today");
   }
 
   // Onboarding progress lives in the database, so pages check it themselves

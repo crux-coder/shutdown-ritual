@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 import type { Daypart } from "@/lib/daypart";
 
 const NAV = [
-  { href: "/", label: "Today", icon: TodayIcon },
+  { href: "/today", label: "Today", icon: TodayIcon },
   { href: "/rituals", label: "Rituals", icon: RitualsIcon },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ] as const;
@@ -35,8 +35,7 @@ export function Sidebar() {
             key={href}
             href={href}
             aria-current={
-              href === pathname ||
-              (href !== "/" && pathname.startsWith(`${href}/`))
+              href === pathname || pathname.startsWith(`${href}/`)
                 ? "page"
                 : undefined
             }

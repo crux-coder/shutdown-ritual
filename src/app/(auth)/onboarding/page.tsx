@@ -41,7 +41,7 @@ async function CurrentStep() {
 
   switch (profile.onboardingStep) {
     case "complete":
-      redirect("/");
+      redirect("/today");
 
     case "name":
       return (

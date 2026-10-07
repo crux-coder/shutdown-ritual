@@ -113,7 +113,7 @@ export async function createFirstRitual(
     return { error: stepError.message, values };
   }
 
-  redirect("/");
+  redirect("/today");
 }
 
 // Rituals can wait: the user lands on an empty today view that points them
@@ -121,7 +121,7 @@ export async function createFirstRitual(
 export async function skipFirstRitual() {
   const profile = await getProfile();
   await setStep(profile.id, nextStep("first_ritual"));
-  redirect("/");
+  redirect("/today");
 }
 
 export async function goBack(step: OnboardingStep) {

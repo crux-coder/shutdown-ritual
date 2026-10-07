@@ -43,7 +43,7 @@ async function getAuthenticatedUser() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/login");
+    redirect("/sign-in");
   }
 
   return user;
@@ -108,7 +108,7 @@ export const getCurrentUser = cache(async (): Promise<User> => {
 // the home page's loading state before getCurrentUser redirects.
 export async function landingPath(
   userId: string,
-): Promise<"/" | "/onboarding"> {
+): Promise<"/today" | "/onboarding"> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
@@ -116,5 +116,5 @@ export async function landingPath(
     .eq("id", userId)
     .maybeSingle();
 
-  return data?.onboarding_step === "complete" ? "/" : "/onboarding";
+  return data?.onboarding_step === "complete" ? "/today" : "/onboarding";
 }

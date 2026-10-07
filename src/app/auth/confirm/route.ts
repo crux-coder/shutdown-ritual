@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   if (error || !data?.user) {
     return NextResponse.redirect(
-      `${origin}/login?error=${type === "recovery" ? "reset" : "confirm"}`,
+      `${origin}/sign-in?error=${type === "recovery" ? "reset" : "confirm"}`,
     );
   }
 

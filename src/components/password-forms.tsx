@@ -73,7 +73,7 @@ export function ForgotPasswordForm() {
       )}
 
       <p className="mt-8 text-center text-sm text-base-content/60">
-        <Link href="/login" className="link link-primary link-hover">
+        <Link href="/sign-in" className="link link-primary link-hover">
           Back to sign in
         </Link>
       </p>
