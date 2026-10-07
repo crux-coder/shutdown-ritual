@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { AppHeader } from "@/components/app-header";
 import { TodayList, TodayListSkeleton } from "@/components/rituals/today-list";
 import { getCurrentUser } from "@/lib/auth";
 import { currentDaypart, type Daypart } from "@/lib/daypart";
@@ -27,8 +26,6 @@ const GREETINGS: Record<Daypart, { title: string; subtitle: string }> = {
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col">
-      <AppHeader current="/" />
-
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-6 pt-12 pb-24 sm:pt-20">
         <div className="text-center">
           <Suspense fallback={<GreetingSkeleton />}>

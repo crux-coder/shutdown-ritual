@@ -1,5 +1,7 @@
 "use client";
 
+import { Tick02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useOptimistic, useTransition } from "react";
 import { setRitualCompleted } from "@/lib/rituals/actions";
 import type { TodaysRitual } from "@/lib/rituals/queries";
@@ -36,17 +38,12 @@ export function TodayRitual({
           aria-hidden
           className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border border-base-content/25 transition-all duration-300 group-hover:border-primary group-aria-pressed:border-primary group-aria-pressed:bg-primary"
         >
-          <svg
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <HugeiconsIcon
+            aria-hidden
+            icon={Tick02Icon}
+            strokeWidth={2.5}
             className="size-3.5 text-primary-content opacity-0 transition-opacity duration-300 group-aria-pressed:opacity-100"
-          >
-            <path d="M3.5 8.5l3 3 6-7" />
-          </svg>
+          />
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="font-medium decoration-base-content/30 transition-colors duration-300 group-aria-pressed:text-base-content/40 group-aria-pressed:line-through">

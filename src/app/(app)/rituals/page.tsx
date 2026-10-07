@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { AppHeader } from "@/components/app-header";
 import { NewRitualButton } from "@/components/rituals/ritual-dialog";
 import {
   RitualList,
@@ -12,8 +11,6 @@ export const metadata: Metadata = { title: "Rituals" };
 export default function RitualsPage() {
   return (
     <div className="flex flex-1 flex-col">
-      <AppHeader current="/rituals" />
-
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 pt-12 pb-24 sm:pt-20">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>

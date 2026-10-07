@@ -1,5 +1,7 @@
 "use client";
 
+import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 const HOURS = Array.from({ length: 24 }, (_, h) => pad(h));
@@ -102,7 +104,12 @@ export function TimePicker({
           <span className="text-base-content/40">:</span>
           {minute}
         </span>
-        <ChevronIcon open={open} />
+        <HugeiconsIcon
+          aria-hidden
+          icon={ArrowDown01Icon}
+          strokeWidth={2}
+          className={`size-4 text-base-content/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </button>
 
       {open && (
@@ -211,22 +218,5 @@ function Column({
         );
       })}
     </div>
-  );
-}
-
-function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={`size-4 text-base-content/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-    >
-      <path d="M4 6l4 4 4-4" />
-    </svg>
   );
 }

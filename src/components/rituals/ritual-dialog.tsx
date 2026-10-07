@@ -1,5 +1,7 @@
 "use client";
 
+import { Add01Icon, PencilEdit02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
   useActionState,
   useId,
@@ -20,7 +22,12 @@ import { RitualFields } from "./ritual-fields";
 export function NewRitualButton() {
   return (
     <RitualDialog triggerClassName="btn btn-primary">
-      <PlusIcon />
+      <HugeiconsIcon
+        aria-hidden
+        icon={Add01Icon}
+        strokeWidth={2}
+        className="size-4"
+      />
       New ritual
     </RitualDialog>
   );
@@ -33,7 +40,12 @@ export function EditRitualButton({ ritual }: { ritual: Ritual }) {
       triggerLabel={`Edit ${ritual.title}`}
       triggerClassName="btn btn-ghost btn-sm btn-square -mt-1 -mr-2 text-base-content/60"
     >
-      <PencilIcon />
+      <HugeiconsIcon
+        aria-hidden
+        icon={PencilEdit02Icon}
+        strokeWidth={2}
+        className="size-4"
+      />
     </RitualDialog>
   );
 }
@@ -204,38 +216,5 @@ function RitualForm({
         </div>
       )}
     </form>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.75}
-      strokeLinecap="round"
-      aria-hidden
-      className="size-4"
-    >
-      <path d="M8 3v10M3 8h10" />
-    </svg>
-  );
-}
-
-function PencilIcon() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.5}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className="size-4"
-    >
-      <path d="M11.5 2.5l2 2L5 13H3v-2l8.5-8.5z" />
-    </svg>
   );
 }
