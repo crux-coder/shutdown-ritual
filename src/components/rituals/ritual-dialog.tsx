@@ -162,11 +162,12 @@ function NewRitualForm({
         suggestionsEnabled={suggestionsEnabled}
         submitted={state?.status === "error" ? state.values : undefined}
       />
-      {stage.kind === "form" && state?.status === "error" && (
-        <p role="alert" className="text-sm text-error">
-          {state.error}
-        </p>
-      )}
+      {(stage.kind === "form" || flow.choosingSuggestion) &&
+        state?.status === "error" && (
+          <p role="alert" className="text-sm text-error">
+            {state.error}
+          </p>
+        )}
 
       <div className="modal-action mt-0">
         {stage.kind !== "choose" && (
@@ -190,6 +191,19 @@ function NewRitualForm({
             className="btn btn-primary"
           >
             {flow.isLastQuestion ? "See rituals" : "Next"}
+          </button>
+        )}
+        {flow.loadingSuggestions && (
+          <div aria-hidden className="skeleton h-10 w-32 rounded-field" />
+        )}
+        {flow.choosingSuggestion && (
+          <button
+            type="submit"
+            disabled={flow.selected === null || pending}
+            className="btn btn-primary"
+          >
+            {pending && <span className="loading loading-spinner loading-sm" />}
+            {pending ? "Saving…" : "Use this ritual"}
           </button>
         )}
         {stage.kind === "form" && (

@@ -5,6 +5,7 @@ import {
   GridViewIcon,
   PencilEdit02Icon,
   SparklesIcon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { useState, useTransition } from "react";
@@ -22,12 +23,12 @@ import {
 } from "@/lib/rituals/questions";
 import type { RitualSuggestion } from "@/lib/rituals/suggest";
 import type { RitualTemplate } from "@/lib/rituals/templates";
-import { RitualFields } from "./ritual-fields";
+import { HiddenRitualFields, RitualFields } from "./ritual-fields";
 import { TemplatePicker } from "./template-picker";
 
 // Making a new ritual, one screen at a time: choose how to start, then either
-// answer three questions and pick an AI suggestion, or pick a template, and
-// finally edit it in the ritual form. Shared by onboarding and the Rituals
+// answer three questions and save one of the AI's suggestions as it is, or
+// pick a template (or a blank form) and edit it in the ritual form. Shared by onboarding and the Rituals
 // page, which each wrap it in their own form and buttons.
 
 type Stage =
@@ -35,7 +36,7 @@ type Stage =
   | { kind: "question"; index: number }
   | { kind: "suggestions" }
   | { kind: "templates" }
-  | { kind: "form"; from: "suggestions" | "templates" | "choose" };
+  | { kind: "form"; from: "templates" | "choose" };
 
 // What the form starts from: a suggestion, a template, or a blank form.
 type StartingPoint = { key: string; values: RitualFormValues };
@@ -53,6 +54,8 @@ export function useNewRitualFlow() {
     feeling: "",
   });
   const [suggestions, setSuggestions] = useState<RitualSuggestion[]>([]);
+  // The suggestion chosen, saved by "Use this ritual".
+  const [selected, setSelected] = useState<number | null>(null);
   const [suggestError, setSuggestError] = useState(false);
   const [suggesting, startSuggesting] = useTransition();
   const [picked, setPicked] = useState<StartingPoint>(BLANK);
@@ -68,6 +71,7 @@ export function useNewRitualFlow() {
   function suggest() {
     setStage({ kind: "suggestions" });
     setSuggestError(false);
+    setSelected(null);
     startSuggesting(async () => {
       const result = await getRitualSuggestions(answers);
       setSuggestions("suggestions" in result ? result.suggestions : []);
@@ -75,10 +79,7 @@ export function useNewRitualFlow() {
     });
   }
 
-  function edit(
-    point: StartingPoint,
-    from: "suggestions" | "templates" | "choose",
-  ) {
+  function edit(point: StartingPoint, from: "templates" | "choose") {
     setPicked(point);
     setFresh(true);
     setStage({ kind: "form", from });
@@ -108,12 +109,17 @@ export function useNewRitualFlow() {
     startBlank() {
       edit(BLANK, "choose");
     },
-    pickSuggestion(suggestion: RitualSuggestion, index: number) {
-      edit(
-        { key: `suggestion-${index}`, values: suggestion.values },
-        "suggestions",
-      );
+    selected,
+    select(index: number) {
+      setSelected(index);
     },
+    // Whether suggestions are on their way; the footer holds the place of
+    // "Use this ritual" meanwhile.
+    loadingSuggestions: stage.kind === "suggestions" && suggesting,
+    // Whether the footer should offer "Use this ritual", which saves the
+    // selected suggestion as it is.
+    choosingSuggestion:
+      stage.kind === "suggestions" && !suggesting && suggestions.length > 0,
     pickTemplate(template: RitualTemplate) {
       setPickedTemplate(template);
       edit({ key: template.id, values: template.values }, "templates");
@@ -218,19 +224,35 @@ export function NewRitualScreen({
     }
     return (
       <div className="flex flex-col gap-3">
-        {flow.suggestions.map((suggestion, index) => (
-          <SuggestionCard
-            key={index}
-            suggestion={suggestion}
-            delayMs={index * 90}
-            onPick={() => flow.pickSuggestion(suggestion, index)}
-          />
-        ))}
+        <div
+          role="radiogroup"
+          aria-label="Suggested rituals"
+          className="flex flex-col gap-3"
+        >
+          {flow.suggestions.map((suggestion, index) => (
+            <SuggestionCard
+              key={index}
+              suggestion={suggestion}
+              selected={flow.selected === index}
+              delayMs={index * 90}
+              onSelect={() => flow.select(index)}
+            />
+          ))}
+        </div>
+        {flow.selected !== null && flow.suggestions[flow.selected] && (
+          <HiddenRitualFields values={flow.suggestions[flow.selected].values} />
+        )}
         <button
           type="button"
           onClick={flow.suggest}
-          className="link link-hover self-center text-sm text-base-content/50"
+          className="btn btn-outline btn-sm mt-1 self-center border-base-300 font-normal text-base-content/70 hover:border-primary/50 hover:bg-base-200/60 hover:text-base-content"
         >
+          <HugeiconsIcon
+            aria-hidden
+            icon={SparklesIcon}
+            strokeWidth={2}
+            className="size-4 text-primary"
+          />
           Suggest others
         </button>
       </div>
@@ -356,24 +378,51 @@ function SuggestionsLoading() {
 
 function SuggestionCard({
   suggestion,
+  selected,
   delayMs,
-  onPick,
+  onSelect,
 }: {
   suggestion: RitualSuggestion;
+  selected: boolean;
   delayMs: number;
-  onPick: () => void;
+  onSelect: () => void;
 }) {
   const { title, steps } = suggestion.values;
 
   return (
     <button
       type="button"
-      onClick={onPick}
+      role="radio"
+      aria-checked={selected}
+      onClick={onSelect}
       style={{ animationDelay: `${delayMs}ms` }}
-      className="flex w-full cursor-pointer flex-col gap-2 rounded-box border border-base-300 bg-base-200/40 px-5 py-4 text-left transition-colors hover:border-primary/50 hover:bg-base-200/70 focus-visible:outline-2 focus-visible:outline-primary motion-safe:animate-rise"
+      className="group flex w-full cursor-pointer items-start gap-4 rounded-box border border-base-300 bg-base-200/40 px-5 py-5 text-left transition-colors hover:border-primary/50 hover:bg-base-200/70 focus-visible:outline-2 focus-visible:outline-primary aria-checked:border-primary aria-checked:bg-primary/10 motion-safe:animate-rise"
     >
-      <span className="font-medium">{title}</span>
-      <span className="text-sm text-base-content/55">{steps.join(" · ")}</span>
+      <span
+        aria-hidden
+        className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border border-base-content/30 transition-colors group-hover:border-primary group-aria-checked:border-primary group-aria-checked:bg-primary"
+      >
+        <HugeiconsIcon
+          icon={Tick02Icon}
+          strokeWidth={3}
+          className="size-3 text-primary-content opacity-0 transition-opacity group-aria-checked:opacity-100"
+        />
+      </span>
+      {/* Steps as spans laid out like a list: a button may only hold
+          phrasing content. */}
+      <span className="flex min-w-0 flex-col gap-3">
+        <span className="text-base font-medium">{title}</span>
+        <span className="flex flex-col gap-2 text-sm leading-snug text-base-content/75">
+          {steps.map((step, i) => (
+            <span key={i} className="flex gap-3">
+              <span className="w-3 shrink-0 text-right text-base-content/35 tabular-nums">
+                {i + 1}
+              </span>
+              <span>{step}</span>
+            </span>
+          ))}
+        </span>
+      </span>
     </button>
   );
 }

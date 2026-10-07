@@ -6,11 +6,9 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
     <>
       <AppHeader />
       <Sidebar />
-      {/* The sidebar floats over the page and never shifts it. Small screens
-          keep room for the rail; wider ones have enough margin already. */}
-      <div className="flex flex-1 flex-col pl-20 md:pl-0">
-        {children}
-      </div>
+      {/* The navigation floats over the page and never shifts it: on phones
+          its bottom bar sits in the padding every page already has (pb-24). */}
+      <div className="flex flex-1 flex-col">{children}</div>
     </>
   );
 }

@@ -138,3 +138,23 @@ export function RitualFields({
     </>
   );
 }
+
+// A ritual as hidden inputs, for saving it as it is without showing the form.
+export function HiddenRitualFields({ values }: { values: RitualFormValues }) {
+  return (
+    <>
+      <input type="hidden" name="title" value={values.title} />
+      <input type="hidden" name="description" value={values.description} />
+      <input type="hidden" name="moment" value={values.moment} />
+      {values.steps.map((step, i) => (
+        <input key={`step-${i}`} type="hidden" name="steps" value={step} />
+      ))}
+      {values.days.map((day) => (
+        <input key={`day-${day}`} type="hidden" name="days" value={day} />
+      ))}
+      {values.integrations.map((id) => (
+        <input key={id} type="hidden" name="integrations" value={id} />
+      ))}
+    </>
+  );
+}
