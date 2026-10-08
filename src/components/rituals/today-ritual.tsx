@@ -5,7 +5,6 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { useOptimistic, useTransition } from "react";
 import { setRitualCompleted, setStepChecked } from "@/lib/rituals/actions";
 import type { TodaysRitual } from "@/lib/rituals/queries";
-import { playSound, type SoundId } from "@/lib/sounds";
 
 type Progress = { completed: boolean; checked: number[] };
 type ProgressChange =
@@ -36,12 +35,9 @@ function applyChange(
 export function TodayRitual({
   ritual,
   delayMs,
-  finishSound = "none",
 }: {
   ritual: TodaysRitual;
   delayMs: number;
-  // Played when finishing this one finishes the list.
-  finishSound?: SoundId;
 }) {
   const steps = ritual.steps;
   const [progress, change] = useOptimistic(
@@ -54,7 +50,6 @@ export function TodayRitual({
   const stepping = steps.length > 0 && !completed;
 
   function toggleRitual() {
-    if (!completed) playSound(finishSound);
     startTransition(async () => {
       change({ kind: "ritual", completed: !completed });
       await setRitualCompleted(ritual.id, !completed);
@@ -63,8 +58,6 @@ export function TodayRitual({
 
   function toggleStep(step: number) {
     const checked = !progress.checked.includes(step);
-    if (checked && progress.checked.length === steps.length - 1)
-      playSound(finishSound);
     startTransition(async () => {
       change({ kind: "step", step, checked });
       await setStepChecked(ritual.id, step, checked);

@@ -4,31 +4,19 @@ import { PlayIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useActionState, useRef } from "react";
 import { SOUNDS, playSound, type SoundId } from "@/lib/sounds";
-import { updateShutdownSound, updateStartSound } from "./actions";
+import { updateShutdownSound } from "./actions";
 import { SaveStatus } from "./settings-section";
 
-const MOMENTS = {
-  start: { label: "Start of day", action: updateStartSound },
-  shutdown: { label: "Shutdown", action: updateShutdownSound },
-} as const;
-
 // Saves as soon as a sound is picked; each one can be previewed first.
-export function SoundForm({
-  moment,
-  sound,
-}: {
-  moment: keyof typeof MOMENTS;
-  sound: SoundId;
-}) {
-  const { label, action } = MOMENTS[moment];
-  const [state, formAction] = useActionState(action, undefined);
+export function SoundForm({ sound }: { sound: SoundId }) {
+  const [state, formAction] = useActionState(updateShutdownSound, undefined);
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between gap-4">
         <span className="text-xs font-medium tracking-[0.2em] text-base-content/50 uppercase">
-          {label}
+          Shutdown
         </span>
         <SaveStatus state={state} />
       </div>

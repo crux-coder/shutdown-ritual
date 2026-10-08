@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Ritual } from "./options";
 
 const RITUAL_COLUMNS =
-  "id, title, description, steps, moment, days, integrations";
+  "id, title, description, steps, days, integrations";
 
 // RLS scopes this to the signed-in user.
 export async function getRituals(): Promise<Ritual[]> {

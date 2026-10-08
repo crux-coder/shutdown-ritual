@@ -3,9 +3,8 @@ import type { ComponentProps } from "react";
 import { TimeZoneSync } from "@/components/time-zone-sync";
 import { getCurrentUser } from "@/lib/auth";
 import { today } from "@/lib/dates";
-import { minutesUntilNextPhase, todayPhase } from "@/lib/day-hours";
+import { minutesUntilRitualsOpen, ritualsOpen } from "@/lib/day-hours";
 import { getTodaysRituals, type TodaysRitual } from "@/lib/rituals/queries";
-import type { SoundId } from "@/lib/sounds";
 import { suggestionsEnabled } from "@/lib/rituals/suggest";
 import { DayPrompt, RefreshIn, ShutDownView } from "./day-prompt";
 import { TailorNudge, WelcomeCard } from "./first-day-cards";
@@ -28,22 +27,12 @@ export async function TodayList() {
   ]);
   const { date, minutes } = today(user.timeZone);
 
-  const startRituals = rituals.filter((r) => r.moment === "start_of_day");
-  const endRituals = rituals.filter((r) => r.moment === "end_of_day");
-
-  const phase = todayPhase({
+  const open = ritualsOpen({
     nowMinutes: minutes,
-    dayStartsAt: user.dayStartsAt,
     dayEndsAt: user.dayEndsAt,
-    startedEarly: user.dayStartedEarlyOn === date,
     endedEarly: user.dayEndedEarlyOn === date,
-    hasStartRituals: startRituals.length > 0,
   });
-  const refreshIn = minutesUntilNextPhase(
-    minutes,
-    user.dayStartsAt,
-    user.dayEndsAt,
-  );
+  const refreshIn = minutesUntilRitualsOpen(minutes, user.dayEndsAt);
 
   // A note written on an earlier day is waiting to be read; one written
   // today is still being drafted, and the shutdown screen picks it up.
@@ -64,7 +53,7 @@ export async function TodayList() {
   const welcomeOpens =
     rituals.length === 0
       ? `It runs on weekdays, opening at ${user.dayEndsAt} when your workday ends.`
-      : phase === "end"
+      : open
         ? "It’s open below. Work through it whenever you’re ready."
         : `It opens at ${user.dayEndsAt}, when your workday ends. To try it now, tap “End my day early” below.`;
 
@@ -79,7 +68,7 @@ export async function TodayList() {
       {...props}
     />
   );
-  // The evening without rituals of its own: straight to closing the day.
+  // A day without rituals: straight to closing the day.
   const finishForToday = shutdown({ label: "Finish for today", delayMs: 200 });
   // The shorter way out on a tired evening: straight to the note and the
   // close, leaving whatever rituals are open for today.
@@ -92,16 +81,6 @@ export async function TodayList() {
     ),
     delayMs: 400,
   });
-  // Before the evening: open its rituals early, or close the day.
-  const evening =
-    endRituals.length > 0 ? (
-      <div className="flex flex-col">
-        <DayPrompt moment="end" />
-        {essentials}
-      </div>
-    ) : (
-      finishForToday
-    );
 
   if (user.dayShutDownOn === date) {
     return (
@@ -136,41 +115,26 @@ export async function TodayList() {
           </div>
           {finishForToday}
         </div>
-      ) : phase === "start_prompt" ? (
-        <DayPrompt moment="start" />
-      ) : phase === "start" ? (
-        <div className="flex flex-col gap-6">
-          <RitualList rituals={startRituals} finishSound={user.startSound} />
-          {/* Morning done: the evening can be opened early from here. */}
-          {startRituals.every((r) => r.completed) && evening}
+      ) : !open ? (
+        // Before the evening: open its rituals early, or close the day.
+        <div className="flex flex-col">
+          <DayPrompt />
+          {essentials}
         </div>
-      ) : phase === "end_prompt" ? (
-        evening
-      ) : endRituals.length > 0 ? (
+      ) : (
         <div className="flex flex-col gap-6">
-          <RitualList rituals={endRituals} />
-          {endRituals.every((r) => r.completed)
+          <RitualList rituals={rituals} />
+          {rituals.every((r) => r.completed)
             ? shutdown({ delayMs: 400 })
             : // Not everything got done, and that's fine: leave it for today.
               essentials}
         </div>
-      ) : (
-        finishForToday
       )}
     </>
   );
 }
 
-function RitualList({
-  rituals,
-  finishSound,
-}: {
-  rituals: TodaysRitual[];
-  // Played as the last open ritual is checked off.
-  finishSound?: SoundId;
-}) {
-  const open = rituals.filter((r) => !r.completed);
-
+function RitualList({ rituals }: { rituals: TodaysRitual[] }) {
   return (
     <ul className="flex flex-col gap-3">
       {rituals.map((ritual, index) => (
@@ -178,9 +142,6 @@ function RitualList({
           key={ritual.id}
           ritual={ritual}
           delayMs={index * STAGGER_MS + STAGGER_MS / 2}
-          finishSound={
-            open.length === 1 && open[0] === ritual ? finishSound : "none"
-          }
         />
       ))}
     </ul>

@@ -30,7 +30,7 @@ import {
 } from "@/lib/rituals/options";
 import { EditRitualButton } from "./ritual-dialog";
 
-// One moment's rituals, reorderable by dragging the handle (or with the
+// The user's rituals, reorderable by dragging the handle (or with the
 // keyboard: focus the handle, Space to lift, arrows to move, Space to drop).
 export function SortableRituals({ rituals }: { rituals: Ritual[] }) {
   const id = useId();

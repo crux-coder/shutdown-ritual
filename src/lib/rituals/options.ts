@@ -1,21 +1,6 @@
 // Shared by the server action and the client form — keep in sync with the
 // enums in supabase/migrations/*_create_rituals.sql.
 
-export const RITUAL_MOMENTS = [
-  {
-    id: "start_of_day",
-    label: "Start of day",
-    hint: "Ease into work with intention",
-  },
-  {
-    id: "end_of_day",
-    label: "End of day",
-    hint: "Close loops and switch off",
-  },
-] as const;
-
-export type RitualMoment = (typeof RITUAL_MOMENTS)[number]["id"];
-
 // Linear and Notion are still in the enum but no longer offered: they're
 // dropped from a ritual the next time it's saved.
 export const RITUAL_INTEGRATIONS = [
@@ -56,7 +41,6 @@ export type Ritual = {
   description: string | null;
   // In order; empty for a ritual that is ticked off whole.
   steps: string[];
-  moment: RitualMoment;
   days: Weekday[];
   integrations: RitualIntegration[];
 };

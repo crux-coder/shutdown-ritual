@@ -1,35 +1,21 @@
 "use client";
 
-import {
-  Moon02Icon,
-  SunriseIcon,
-  SunsetIcon,
-} from "@hugeicons/core-free-icons";
+import { Moon02Icon, SunsetIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition, type ReactNode } from "react";
-import { endDayEarly, reopenDay, startDayEarly } from "@/lib/profile-actions";
+import { endDayEarly, reopenDay } from "@/lib/profile-actions";
 
-const PROMPTS = {
-  start: {
-    action: startDayEarly,
-    label: "Start my day early",
-    icon: SunriseIcon,
-  },
-  end: { action: endDayEarly, label: "End my day early", icon: SunsetIcon },
-} as const;
-
-// One big button that opens the next rituals early.
-export function DayPrompt({ moment }: { moment: keyof typeof PROMPTS }) {
-  const { action, label, icon } = PROMPTS[moment];
+// One big button that opens today's rituals early.
+export function DayPrompt() {
   const [pending, startTransition] = useTransition();
 
   return (
     <PromptButton
-      icon={icon}
-      label={label}
+      icon={SunsetIcon}
+      label="End my day early"
       pending={pending}
-      onClick={() => startTransition(action)}
+      onClick={() => startTransition(endDayEarly)}
     />
   );
 }
@@ -166,8 +152,8 @@ export function ShutDownView() {
   );
 }
 
-// Refreshes the page when the next phase of the day begins, so rituals open
-// on time even if the page was left open.
+// Refreshes the page when the rituals open, so they open on time even if the
+// page was left open.
 export function RefreshIn({ minutes }: { minutes: number }) {
   const router = useRouter();
 

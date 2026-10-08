@@ -15,7 +15,7 @@ const fraunces = Fraunces({
 });
 
 const description =
-  "A calm, intentional way to start your workday and close it properly.";
+  "A calm, intentional way to close your workday properly.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

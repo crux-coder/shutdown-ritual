@@ -1,7 +1,6 @@
 // Sounds the app can play, synthesized in the browser — no audio files.
-// Each one has an id, stored as the user's choice in profiles.start_sound and
-// profiles.shutdown_sound (keep their check constraints in sync) and passed
-// back in to playSound().
+// Each one has an id, stored as the user's choice in profiles.shutdown_sound
+// (keep its check constraint in sync) and passed back in to playSound().
 
 export const SOUNDS = [
   { id: "dawn", label: "Dawn" },
@@ -15,8 +14,7 @@ export function isSoundId(value: string): value is SoundId {
   return SOUNDS.some((s) => s.id === value);
 }
 
-// Match the profiles.start_sound and shutdown_sound column defaults.
-export const DEFAULT_START_SOUND: SoundId = "dawn";
+// Matches the profiles.shutdown_sound column default.
 export const DEFAULT_SHUTDOWN_SOUND: SoundId = "dusk";
 
 const PLAYERS: Record<SoundId, (ctx: AudioContext) => void> = {
@@ -97,7 +95,7 @@ function playDusk(ctx: AudioContext) {
 }
 
 // Dusk turned around: a bright chord that rises in note by note and opens up,
-// like light coming in, for the morning rituals being done.
+// like light coming in.
 const DAWN_SECONDS = 2.2;
 const DAWN_NOTE_GAP = 0.12;
 

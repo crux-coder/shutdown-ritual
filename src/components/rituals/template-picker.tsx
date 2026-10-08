@@ -3,7 +3,6 @@
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
-import { RITUAL_MOMENTS } from "@/lib/rituals/options";
 import {
   RITUAL_TEMPLATES,
   TEMPLATE_AUDIENCES,
@@ -62,8 +61,6 @@ export function TemplatePicker({
                 </span>
               </span>
               <span className="shrink-0 text-right text-xs text-base-content/40">
-                {momentLabel(template)}
-                <br />
                 {template.values.steps.length} steps
               </span>
               <HugeiconsIcon
@@ -78,8 +75,4 @@ export function TemplatePicker({
       </ul>
     </div>
   );
-}
-
-function momentLabel(template: RitualTemplate) {
-  return RITUAL_MOMENTS.find((m) => m.id === template.values.moment)!.label;
 }

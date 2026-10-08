@@ -4,12 +4,7 @@ import { cache } from "react";
 import { DEFAULT_DAY_ENDS_AT, DEFAULT_DAY_STARTS_AT } from "@/lib/day-hours";
 import type { OnboardingStep } from "@/lib/onboarding";
 import { DEFAULT_SHUTDOWN_PHRASE, type ShutdownMode } from "@/lib/profile";
-import {
-  DEFAULT_SHUTDOWN_SOUND,
-  DEFAULT_START_SOUND,
-  isSoundId,
-  type SoundId,
-} from "@/lib/sounds";
+import { DEFAULT_SHUTDOWN_SOUND, isSoundId, type SoundId } from "@/lib/sounds";
 import { createClient } from "@/lib/supabase/server";
 
 export type Profile = {
@@ -20,12 +15,10 @@ export type Profile = {
   // Local wall-clock times, "HH:MM".
   dayStartsAt: string;
   dayEndsAt: string;
-  // Local dates ("YYYY-MM-DD") the user last started or ended their day
-  // early, and last shut down for the day.
-  dayStartedEarlyOn: string | null;
+  // Local dates ("YYYY-MM-DD") the user last ended their day early, and last
+  // shut down for the day.
   dayEndedEarlyOn: string | null;
   dayShutDownOn: string | null;
-  startSound: SoundId;
   shutdownSound: SoundId;
   shutdownPhrase: string;
   // Whether shutting down takes typing the phrase or a single button.
@@ -65,7 +58,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "first_name, time_zone, day_starts_at, day_ends_at, day_started_early_on, day_ended_early_on, day_shut_down_on, start_sound, shutdown_sound, shutdown_phrase, shutdown_mode, handoff_note, handoff_note_on, welcome_dismissed_at, tailor_nudge_dismissed_at, onboarding_step",
+      "first_name, time_zone, day_starts_at, day_ends_at, day_ended_early_on, day_shut_down_on, shutdown_sound, shutdown_phrase, shutdown_mode, handoff_note, handoff_note_on, welcome_dismissed_at, tailor_nudge_dismissed_at, onboarding_step",
     )
     .eq("id", user.id)
     .maybeSingle();
@@ -74,7 +67,6 @@ export const getProfile = cache(async (): Promise<Profile> => {
     throw new Error(`Failed to load profile: ${error.message}`);
   }
 
-  const startSound = data?.start_sound ?? "";
   const shutdownSound = data?.shutdown_sound ?? "";
 
   // A missing row is treated as a fresh start; the first step creates it.
@@ -86,10 +78,8 @@ export const getProfile = cache(async (): Promise<Profile> => {
     // Postgres returns "HH:MM:SS".
     dayStartsAt: data?.day_starts_at?.slice(0, 5) ?? DEFAULT_DAY_STARTS_AT,
     dayEndsAt: data?.day_ends_at?.slice(0, 5) ?? DEFAULT_DAY_ENDS_AT,
-    dayStartedEarlyOn: data?.day_started_early_on ?? null,
     dayEndedEarlyOn: data?.day_ended_early_on ?? null,
     dayShutDownOn: data?.day_shut_down_on ?? null,
-    startSound: isSoundId(startSound) ? startSound : DEFAULT_START_SOUND,
     shutdownSound: isSoundId(shutdownSound)
       ? shutdownSound
       : DEFAULT_SHUTDOWN_SOUND,

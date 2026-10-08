@@ -58,30 +58,18 @@ export const DEFAULT_RITUAL: RitualFormValues = {
     "Capture every open task somewhere you trust",
     "Look over tomorrow’s calendar",
   ],
-  moment: "end_of_day",
   days: WEEKDAYS_ONLY,
   integrations: [],
 };
 
 export const RITUAL_TEMPLATES: RitualTemplate[] = [
   // Anyone
-  template("plan-the-day", "anyone", "Decide what today is for", {
-    title: "Plan the day",
-    moment: "start_of_day",
-    integrations: ["google_calendar"],
-    steps: [
-      "Look over today’s calendar",
-      "Pick the one thing that matters most",
-      "Block time for it before anything else gets in",
-    ],
-  }),
   template(
     "newport-shutdown",
     "anyone",
     "Close every loop, then say it out loud",
     {
       title: "Cal Newport shutdown",
-      moment: "end_of_day",
       integrations: ["gmail", "todoist", "google_calendar"],
       steps: [
         "Check email and messages for anything truly urgent",
@@ -92,7 +80,6 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   ),
   template("leave-the-desk", "anyone", "A clear line between work and home", {
     title: "Leave the desk",
-    moment: "end_of_day",
     steps: [
       "Close every app and tab you won’t need tomorrow",
       "Clear your desk",
@@ -102,7 +89,6 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   }),
   template("weekly-review", "anyone", "Look back on Friday, set up next week", {
     title: "Weekly review",
-    moment: "end_of_day",
     days: [5],
     integrations: ["todoist", "google_calendar"],
     steps: [
@@ -113,24 +99,12 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   }),
 
   // Engineers
-  template("engineer-morning", "engineers", "Unblock others, then go deep", {
-    title: "Engineer’s morning",
-    moment: "start_of_day",
-    integrations: ["github"],
-    steps: [
-      "Read yesterday’s note on where you stopped",
-      "Check CI and any overnight alerts",
-      "Review the pull requests waiting on you",
-      "Pick today’s main task and close everything else",
-    ],
-  }),
   template(
     "engineer-end-of-day",
     "engineers",
     "Leave the code easy to pick back up",
     {
       title: "Engineer’s end of day",
-      moment: "end_of_day",
       integrations: ["github"],
       steps: [
         "Push your work in progress to a branch",
@@ -143,26 +117,11 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
 
   // Designers
   template(
-    "creative-warm-up",
-    "designers",
-    "Get your eye in before the tools",
-    {
-      title: "Creative warm-up",
-      moment: "start_of_day",
-      steps: [
-        "Spend ten minutes on work you find inspiring",
-        "Re-read the brief for what you’re working on",
-        "Sketch on paper before opening your tools",
-      ],
-    },
-  ),
-  template(
     "design-wrap-up",
     "designers",
     "Keep the work and the feedback findable",
     {
       title: "Design wrap-up",
-      moment: "end_of_day",
       integrations: ["todoist"],
       steps: [
         "Name and tidy today’s files and frames",
@@ -174,24 +133,8 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   ),
 
   // Managers
-  template(
-    "team-check-in",
-    "managers",
-    "See where the team is before your day",
-    {
-      title: "Team check-in",
-      moment: "start_of_day",
-      integrations: ["google_calendar"],
-      steps: [
-        "Read standup updates and team channels",
-        "Unblock anyone who’s stuck, first",
-        "Pick the one thing only you can move forward today",
-      ],
-    },
-  ),
   template("managers-close", "managers", "Nobody waits on you overnight", {
     title: "Manager’s close",
-    moment: "end_of_day",
     integrations: ["gmail", "google_calendar"],
     steps: [
       "Check for urgent blockers; park the rest",
@@ -202,23 +145,12 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   }),
 
   // Writers
-  template("morning-pages", "writers", "Empty your head onto the page", {
-    title: "Morning pages",
-    moment: "start_of_day",
-    days: [1, 2, 3, 4, 5, 6, 7],
-    steps: [
-      "Write three pages by hand, about anything",
-      "Don’t reread or edit them",
-      "Circle one idea worth coming back to",
-    ],
-  }),
   template(
     "writing-wrap-up",
     "writers",
     "Stop where tomorrow is easy to start",
     {
       title: "Writing wrap-up",
-      moment: "end_of_day",
       steps: [
         "Stop mid-sentence, or mid-thought",
         "Note today’s progress",
@@ -235,7 +167,6 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
     "Hours logged, clients up to date",
     {
       title: "Freelancer’s close",
-      moment: "end_of_day",
       integrations: ["gmail", "todoist"],
       steps: [
         "Log today’s hours against each client",
@@ -247,7 +178,6 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   ),
   template("weekly-admin", "freelancers", "Get paid, keep work coming in", {
     title: "Weekly admin",
-    moment: "end_of_day",
     days: [5],
     integrations: ["gmail"],
     steps: [
@@ -259,19 +189,8 @@ export const RITUAL_TEMPLATES: RitualTemplate[] = [
   }),
 
   // Students
-  template("study-plan", "students", "Know what you’re studying, and when", {
-    title: "Study plan",
-    moment: "start_of_day",
-    integrations: ["google_calendar"],
-    steps: [
-      "Check today’s classes and deadlines",
-      "Choose what to study, and for how long",
-      "Put your phone in another room",
-    ],
-  }),
   template("study-wrap-up", "students", "Make today’s learning stick", {
     title: "Study wrap-up",
-    moment: "end_of_day",
     integrations: ["todoist"],
     steps: [
       "Spend five minutes recalling what you learned today",

@@ -12,8 +12,8 @@ import { SoundForm } from "../sound-form";
 
 export const metadata: Metadata = { title: "Your day · Settings" };
 
-// How the day opens and closes: its hours, the phrase that ends it, and the
-// sounds along the way.
+// How the day closes: its hours, the phrase that ends it, and the sound it
+// ends on.
 export default function DaySettingsPage() {
   return (
     <Suspense fallback={<SettingsSkeleton />}>
@@ -27,9 +27,7 @@ async function DaySettings() {
   const now = today(user.timeZone);
   const calendarUrl = shutdownCalendarUrl({
     dayEndsAt: user.dayEndsAt,
-    days: rituals
-      .filter((r) => r.moment === "end_of_day")
-      .flatMap((r) => r.days),
+    days: rituals.flatMap((r) => r.days),
     timeZone: user.timeZone,
     todayDate: now.date,
     todayWeekday: now.weekday,
@@ -78,13 +76,10 @@ async function DaySettings() {
         </div>
       </SettingsSection>
       <SettingsSection
-        title="Sounds"
-        description="One plays as you finish your morning rituals, the other as you shut down."
+        title="Sound"
+        description="Plays as you shut down for the day."
       >
-        <div className="flex flex-col gap-6">
-          <SoundForm moment="start" sound={user.startSound} />
-          <SoundForm moment="shutdown" sound={user.shutdownSound} />
-        </div>
+        <SoundForm sound={user.shutdownSound} />
       </SettingsSection>
     </div>
   );

@@ -7,11 +7,9 @@ import {
   MAX_STEPS,
   MAX_TITLE_LENGTH,
   RITUAL_INTEGRATIONS,
-  RITUAL_MOMENTS,
   WEEKDAYS,
   type Ritual,
   type RitualIntegration,
-  type RitualMoment,
   type Weekday,
 } from "./options";
 
@@ -19,7 +17,6 @@ export type RitualFormValues = {
   title: string;
   description: string;
   steps: string[];
-  moment: RitualMoment;
   days: Weekday[];
   integrations: RitualIntegration[];
 };
@@ -28,7 +25,6 @@ export const DEFAULT_RITUAL_VALUES: RitualFormValues = {
   title: "",
   description: "",
   steps: [],
-  moment: "end_of_day",
   days: [1, 2, 3, 4, 5],
   integrations: [],
 };
@@ -39,18 +35,15 @@ export function toFormValues(ritual?: Ritual): RitualFormValues {
     title: ritual.title,
     description: ritual.description ?? "",
     steps: ritual.steps,
-    moment: ritual.moment,
     days: ritual.days,
     integrations: ritual.integrations,
   };
 }
 
-const MOMENT_IDS = new Set<string>(RITUAL_MOMENTS.map((m) => m.id));
 const INTEGRATION_IDS = new Set<string>(RITUAL_INTEGRATIONS.map((i) => i.id));
 const WEEKDAY_IDS = new Set<number>(WEEKDAYS.map((d) => d.id));
 
 export function readRitualValues(formData: FormData): RitualFormValues {
-  const moment = String(formData.get("moment") ?? "");
   return {
     title: String(formData.get("title") ?? "").trim(),
     description: String(formData.get("description") ?? "").trim(),
@@ -59,7 +52,6 @@ export function readRitualValues(formData: FormData): RitualFormValues {
       .getAll("steps")
       .map((s) => String(s).trim())
       .filter(Boolean),
-    moment: (MOMENT_IDS.has(moment) ? moment : "end_of_day") as RitualMoment,
     days: [...new Set(formData.getAll("days").map(Number))]
       .filter((d) => WEEKDAY_IDS.has(d))
       .sort((a, b) => a - b) as Weekday[],
@@ -88,7 +80,6 @@ export function toRitualRow(values: RitualFormValues) {
     title: values.title,
     description: values.description || null,
     steps: values.steps,
-    moment: values.moment,
     days: values.days,
     integrations: values.integrations,
   };

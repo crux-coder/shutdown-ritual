@@ -31,7 +31,7 @@ export function SiteFooter() {
             <Logo className="size-7" />
           </Link>
           <p className="mt-4 text-sm text-base-content/55">
-            A calm, intentional way to start your workday and close it properly.
+            A calm, intentional way to close your workday properly.
           </p>
         </div>
         <nav className="flex gap-12 text-sm">

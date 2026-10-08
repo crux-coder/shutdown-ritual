@@ -1,8 +1,8 @@
 import {
   CheckListIcon,
+  Clock01Icon,
   ShutDownIcon,
   SparklesIcon,
-  SunriseIcon,
   SunsetIcon,
   Tick02Icon,
   VolumeHighIcon,
@@ -12,14 +12,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { DEFAULT_SHUTDOWN_PHRASE } from "@/lib/profile";
-import { RITUAL_MOMENTS } from "@/lib/rituals/options";
 import { RITUAL_TEMPLATES, TEMPLATE_AUDIENCES } from "@/lib/rituals/templates";
 import { SiteFooter, SiteHeader } from "./site-chrome";
 
 export const metadata: Metadata = {
   title: { absolute: "Eventide · End your workday on purpose" },
   description:
-    "Small rituals to start your workday with intention and close it properly, so the evening is yours.",
+    "Small rituals to close your workday properly, so the evening is yours.",
 };
 
 // Signed-in visitors never see this: the proxy sends them on to /today.
@@ -298,9 +297,9 @@ function WhyItWorks() {
 function Features() {
   const features: { icon: IconSvgElement; title: string; text: string }[] = [
     {
-      icon: SunriseIcon,
-      title: "Morning and evening",
-      text: "Set your work hours, and the right rituals open at the start and end of your day.",
+      icon: Clock01Icon,
+      title: "Right on time",
+      text: "Set your work hours, and your rituals open as your day winds down.",
     },
     {
       icon: CheckListIcon,
@@ -310,7 +309,7 @@ function Features() {
     {
       icon: VolumeHighIcon,
       title: "A sound to finish on",
-      text: "A soft chime as you close your morning, and another as you shut down for the night.",
+      text: "A soft chime as you shut down, so the end of the day has a sound.",
     },
     {
       icon: SunsetIcon,
@@ -323,7 +322,7 @@ function Features() {
     <Section
       eyebrow="Made for your day"
       title="Quiet by design"
-      intro="No streaks to protect, no dashboards to check. Just what helps you start well and stop well."
+      intro="No streaks to protect, no dashboards to check. Just what helps you stop well."
     >
       <ul className="grid gap-x-10 gap-y-12 sm:grid-cols-2">
         {features.map((feature) => (
@@ -408,13 +407,7 @@ function Templates() {
             key={template.id}
             className="flex flex-col rounded-box border border-base-300 bg-base-100/60 p-7 backdrop-blur-sm"
           >
-            <p className="text-xs text-base-content/45">
-              {
-                RITUAL_MOMENTS.find((m) => m.id === template.values.moment)!
-                  .label
-              }
-            </p>
-            <h3 className="mt-2 font-serif text-2xl font-light">
+            <h3 className="font-serif text-2xl font-light">
               {template.values.title}
             </h3>
             <p className="mt-1 text-sm text-base-content/60">

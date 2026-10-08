@@ -42,22 +42,8 @@ export async function updateDayHours(
   return updateProfile({ day_starts_at: dayStartsAt, day_ends_at: dayEndsAt });
 }
 
-export async function updateStartSound(
-  _prev: SettingsState,
-  formData: FormData,
-): Promise<SettingsState> {
-  return updateSound("start_sound", formData);
-}
-
 export async function updateShutdownSound(
   _prev: SettingsState,
-  formData: FormData,
-): Promise<SettingsState> {
-  return updateSound("shutdown_sound", formData);
-}
-
-async function updateSound(
-  column: "start_sound" | "shutdown_sound",
   formData: FormData,
 ): Promise<SettingsState> {
   const sound = String(formData.get("sound") ?? "");
@@ -65,7 +51,7 @@ async function updateSound(
     return { status: "error", error: "Please pick a sound." };
   }
 
-  return updateProfile({ [column]: sound });
+  return updateProfile({ shutdown_sound: sound });
 }
 
 export async function updateShutdownPhrase(

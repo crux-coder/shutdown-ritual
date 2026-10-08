@@ -2,7 +2,6 @@ import {
   MAX_DESCRIPTION_LENGTH,
   MAX_TITLE_LENGTH,
   RITUAL_INTEGRATIONS,
-  RITUAL_MOMENTS,
   WEEKDAYS,
 } from "@/lib/rituals/options";
 import type { RitualFormValues } from "@/lib/rituals/form";
@@ -34,30 +33,6 @@ export function RitualFields({ values }: { values: RitualFormValues }) {
       </div>
 
       <StepsField initial={values.steps} />
-
-      <fieldset className="fieldset">
-        <legend className="fieldset-legend">When</legend>
-        <div className="grid grid-cols-2 gap-2">
-          {RITUAL_MOMENTS.map((moment) => (
-            <label
-              key={moment.id}
-              className="flex cursor-pointer flex-col gap-0.5 rounded-box border border-base-300 p-3 transition-colors has-checked:border-primary has-checked:bg-primary/10 has-focus-visible:outline-2 has-focus-visible:outline-primary"
-            >
-              <input
-                type="radio"
-                name="moment"
-                value={moment.id}
-                defaultChecked={values.moment === moment.id}
-                className="sr-only"
-              />
-              <span className="text-sm font-medium">{moment.label}</span>
-              <span className="text-xs text-base-content/60">
-                {moment.hint}
-              </span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
 
       <fieldset className="fieldset">
         <legend className="fieldset-legend">Repeat on</legend>
@@ -127,7 +102,6 @@ export function HiddenRitualFields({ values }: { values: RitualFormValues }) {
     <>
       <input type="hidden" name="title" value={values.title} />
       <input type="hidden" name="description" value={values.description} />
-      <input type="hidden" name="moment" value={values.moment} />
       {values.steps.map((step, i) => (
         <input key={`step-${i}`} type="hidden" name="steps" value={step} />
       ))}

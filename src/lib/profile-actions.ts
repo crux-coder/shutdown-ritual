@@ -23,12 +23,7 @@ export async function updateTimeZone(timeZone: string): Promise<void> {
   if (!error) refresh();
 }
 
-// Opens today's start-of-day rituals before their usual time.
-export async function startDayEarly(): Promise<void> {
-  await markToday("day_started_early_on");
-}
-
-// Opens today's end-of-day rituals before their usual time.
+// Opens today's rituals before their usual time.
 export async function endDayEarly(): Promise<void> {
   await markToday("day_ended_early_on");
 }
@@ -124,7 +119,7 @@ async function markNow(
 }
 
 async function markToday(
-  column: "day_started_early_on" | "day_ended_early_on" | "day_shut_down_on",
+  column: "day_ended_early_on" | "day_shut_down_on",
 ): Promise<void> {
   const user = await getCurrentUser();
   const { date } = today(user.timeZone);
