@@ -3,6 +3,7 @@
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
+import { disconnectTodoist } from "@/lib/integrations/todoist";
 import {
   DELETE_CONFIRMATION,
   isShutdownMode,
@@ -156,6 +157,9 @@ export async function deleteAccount(
   await getCurrentUser();
   const supabase = await createClient();
 
+  // Revoke Todoist's access too; the account's rows go with the account.
+  await disconnectTodoist().catch(() => {});
+
   const { error } = await supabase.rpc("delete_my_account");
   if (error) {
     return { error: `Couldn’t delete your account: ${error.message}` };
@@ -164,6 +168,23 @@ export async function deleteAccount(
   // The user no longer exists, so only the local session needs clearing.
   await supabase.auth.signOut({ scope: "local" });
   redirect("/");
+}
+
+// Disconnects Todoist: revokes its access and forgets the tokens.
+export async function disconnectTodoistAction(): Promise<SettingsState> {
+  await getCurrentUser();
+
+  try {
+    await disconnectTodoist();
+  } catch (error) {
+    return {
+      status: "error",
+      error: error instanceof Error ? error.message : "Couldn’t disconnect.",
+    };
+  }
+
+  refresh();
+  return { status: "saved" };
 }
 
 async function updateProfile(

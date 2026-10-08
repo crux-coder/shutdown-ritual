@@ -40,6 +40,11 @@ export default function PrivacyPage() {
             <strong>Your settings:</strong> your shutdown phrase, how you close
             the day, your sounds, and whether you’ve seen the welcome cards.
           </li>
+          <li>
+            <strong>Connected apps:</strong> if you connect Todoist, the access
+            Todoist grants us (stored encrypted) and the email you use there.
+            We never see your Todoist password.
+          </li>
         </ul>
       </Part>
 
@@ -61,6 +66,15 @@ export default function PrivacyPage() {
         </p>
       </Part>
 
+      <Part title="Connected apps">
+        <p>
+          Only if you connect one in Settings. With Todoist, we read the tasks
+          due today or overdue to show them in your rituals, and add or complete
+          tasks when you ask us to. We don’t keep copies of your tasks.
+          Disconnecting revokes our access and deletes what we stored for it.
+        </p>
+      </Part>
+
       <Part title="Who else is involved">
         <ul>
           <li>
@@ -71,6 +85,9 @@ export default function PrivacyPage() {
           </li>
           <li>
             <strong>OpenAI</strong>, only for tailored suggestions, as above.
+          </li>
+          <li>
+            <strong>Todoist</strong>, only if you connect it, as above.
           </li>
         </ul>
       </Part>
