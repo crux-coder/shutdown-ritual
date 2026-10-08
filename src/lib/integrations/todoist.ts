@@ -1,4 +1,5 @@
 import "server-only";
+import { INTEGRATIONS_ENABLED } from "@/lib/integrations/connections";
 import { decryptToken, encryptToken } from "@/lib/integrations/crypto";
 import { createClient } from "@/lib/supabase/server";
 
@@ -61,7 +62,9 @@ function credentials() {
 
 export function isTodoistConfigured(): boolean {
   return (
-    credentials() !== null && Boolean(process.env.INTEGRATIONS_ENCRYPTION_KEY)
+    INTEGRATIONS_ENABLED &&
+    credentials() !== null &&
+    Boolean(process.env.INTEGRATIONS_ENCRYPTION_KEY)
   );
 }
 

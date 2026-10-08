@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { IntegrationIcon } from "@/components/integration-icon";
-import { getConnections } from "@/lib/integrations/connections";
+import {
+  getConnections,
+  INTEGRATIONS_ENABLED,
+} from "@/lib/integrations/connections";
 import { isTodoistConfigured } from "@/lib/integrations/todoist";
 import {
   RITUAL_INTEGRATIONS,
@@ -26,6 +29,8 @@ const CONNECT_PATHS: Partial<Record<RitualIntegration, string>> = {
   todoist: "/api/integrations/todoist/connect",
 };
 
+const NO_CONNECTIONS: Awaited<ReturnType<typeof getConnections>> = {};
+
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default function IntegrationSettingsPage({
@@ -47,7 +52,7 @@ async function IntegrationSettings({
 }) {
   const [rituals, connections, params] = await Promise.all([
     getRituals(),
-    getConnections(),
+    INTEGRATIONS_ENABLED ? getConnections() : NO_CONNECTIONS,
     searchParams,
   ]);
   const available: Partial<Record<RitualIntegration, boolean>> = {
@@ -57,7 +62,11 @@ async function IntegrationSettings({
   return (
     <SettingsSection
       title="Integrations"
-      description="The tools your rituals look at. Connect them with your account there; no keys to copy."
+      description={
+        INTEGRATIONS_ENABLED
+          ? "The tools your rituals look at. Connect them with your account there; no keys to copy."
+          : "The tools your rituals look at. Connecting accounts is on the way."
+      }
     >
       <Outcome params={params} />
       <ul className="divide-y divide-base-300 overflow-hidden rounded-box border border-base-300 bg-base-100/50">
