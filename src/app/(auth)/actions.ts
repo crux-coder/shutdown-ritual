@@ -38,6 +38,18 @@ export async function login(
   redirect(await landingPath(data.user.id));
 }
 
+// Google handles both sign-in and sign-up: Supabase creates the account on
+// first use. Google sends the user back to /auth/confirm with a code.
+export async function signInWithGoogle() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: `${SITE_URL}/auth/confirm` },
+  });
+
+  redirect(error ? "/sign-in?error=google" : data.url);
+}
+
 export async function signup(
   _prev: AuthState,
   formData: FormData,

@@ -81,7 +81,7 @@ export const getProfile = cache(async (): Promise<Profile> => {
   return {
     id: user.id,
     email: user.email ?? "",
-    firstName: data?.first_name ?? "",
+    firstName: data?.first_name ?? nameFromProvider(user.user_metadata),
     timeZone: data?.time_zone ?? null,
     // Postgres returns "HH:MM:SS".
     dayStartsAt: data?.day_starts_at?.slice(0, 5) ?? DEFAULT_DAY_STARTS_AT,
@@ -102,6 +102,16 @@ export const getProfile = cache(async (): Promise<Profile> => {
     onboardingStep: data?.onboarding_step ?? "name",
   };
 });
+
+// The first name a sign-in provider gave us (Google sends `given_name`), to
+// prefill onboarding. Email sign-ups have none.
+function nameFromProvider(metadata: Record<string, unknown>): string {
+  const given = metadata.given_name;
+  if (typeof given === "string" && given.trim()) return given.trim();
+
+  const full = metadata.full_name ?? metadata.name;
+  return typeof full === "string" ? (full.trim().split(/\s+/)[0] ?? "") : "";
+}
 
 // A user who has finished onboarding. Anyone else is sent back to it.
 export const getCurrentUser = cache(async (): Promise<User> => {

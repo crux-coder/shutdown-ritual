@@ -22,7 +22,8 @@ export default function PrivacyPage() {
           <li>
             <strong>Your account:</strong> your email address and password.
             Passwords are stored hashed by our sign-in provider; we never see
-            them.
+            them. If you sign in with Google, we get your name, email address
+            and profile picture from Google instead, and no password.
           </li>
           <li>
             <strong>About you:</strong> your first name, your time zone and your

@@ -25,7 +25,9 @@ async function LoginForm({
       ? "That confirmation link didn't work. It may have expired."
       : error === "reset"
         ? "That reset link didn't work. It may have expired, so ask for a new one."
-        : undefined;
+        : error === "google"
+          ? "Signing in with Google didn't work. Please try again."
+          : undefined;
 
   return <AuthForm mode="login" action={login} initialError={initialError} />;
 }

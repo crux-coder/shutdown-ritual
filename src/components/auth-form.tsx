@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
-import type { AuthState } from "@/app/(auth)/actions";
+import { type AuthState, signInWithGoogle } from "@/app/(auth)/actions";
+import { GoogleButton } from "@/components/google-button";
 import { TextField } from "@/components/text-field";
 
 type Props = {
@@ -55,60 +56,68 @@ export function AuthForm({ mode, action, initialError }: Props) {
           <span>{state.message}</span>
         </div>
       ) : (
-        <form action={formAction} className="flex flex-col gap-4">
-          <TextField
-            label="Email"
-            type="email"
-            name="email"
-            autoComplete="email"
-            defaultValue={state?.email}
-            required
-          />
-          <TextField
-            label="Password"
-            type="password"
-            name="password"
-            autoComplete={t.autoComplete}
-            minLength={mode === "signup" ? 8 : undefined}
-            required
-          />
-          {mode === "login" && (
-            <Link
-              href="/forgot-password"
-              className="-mt-2 self-end text-sm text-base-content/50 link link-hover"
-            >
-              Forgot password?
-            </Link>
-          )}
-
-          {state?.error && (
-            <p role="alert" className="text-sm text-error">
-              {state.error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={pending}
-            className="btn btn-primary btn-lg mt-2"
-          >
-            {pending && <span className="loading loading-spinner loading-sm" />}
-            {pending ? t.pending : t.submit}
-          </button>
-          {mode === "signup" && (
-            <p className="text-center text-xs text-base-content/45">
-              By creating an account, you agree to the{" "}
-              <Link href="/terms" className="link link-hover">
-                Terms
-              </Link>{" "}
-              and{" "}
-              <Link href="/privacy" className="link link-hover">
-                Privacy policy
+        <>
+          <form action={signInWithGoogle}>
+            <GoogleButton />
+          </form>
+          <div className="divider my-6 text-xs text-base-content/45">or</div>
+          <form action={formAction} className="flex flex-col gap-4">
+            <TextField
+              label="Email"
+              type="email"
+              name="email"
+              autoComplete="email"
+              defaultValue={state?.email}
+              required
+            />
+            <TextField
+              label="Password"
+              type="password"
+              name="password"
+              autoComplete={t.autoComplete}
+              minLength={mode === "signup" ? 8 : undefined}
+              required
+            />
+            {mode === "login" && (
+              <Link
+                href="/forgot-password"
+                className="-mt-2 self-end text-sm text-base-content/50 link link-hover"
+              >
+                Forgot password?
               </Link>
-              .
-            </p>
-          )}
-        </form>
+            )}
+
+            {state?.error && (
+              <p role="alert" className="text-sm text-error">
+                {state.error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={pending}
+              className="btn btn-primary btn-lg mt-2"
+            >
+              {pending && (
+                <span className="loading loading-spinner loading-sm" />
+              )}
+              {pending ? t.pending : t.submit}
+            </button>
+            {mode === "signup" && (
+              <p className="text-center text-xs text-base-content/45">
+                By creating an account, you agree to the{" "}
+                <Link href="/terms" className="link link-hover">
+                  Terms
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" className="link link-hover">
+                  Privacy policy
+                </Link>
+                .
+              </p>
+            )}
+          </form>
+        </>
       )}
 
       <p className="mt-8 text-center text-sm text-base-content/60">
